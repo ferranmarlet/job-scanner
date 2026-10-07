@@ -1,9 +1,9 @@
 package org.ferran.jobscan.scanner.application
 
-import org.ferran.jobscan.scanner.JobPosting
-import org.ferran.jobscan.scanner.JobPostingId
-import org.ferran.jobscan.scanner.Seniority
-import org.ferran.jobscan.scanner.WorkMode
+import org.ferran.jobscan.scanner.domain.JobPosting
+import org.ferran.jobscan.scanner.domain.JobPostingId
+import org.ferran.jobscan.scanner.domain.Seniority
+import org.ferran.jobscan.scanner.domain.WorkMode
 import org.springframework.stereotype.Service
 import java.net.URI
 
