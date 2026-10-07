@@ -27,10 +27,10 @@ data class SalaryRange(val min: Int, val max: Int, val currency: String) {
 data class JobPosting(
   val id: JobPostingId = JobPostingId.new(),
   val title: String,
-  val company: String,
-  val location: String,
-  val workMode: WorkMode,
-  val seniority: Seniority,
+  val company: String?,
+  val location: String?,
+  val workMode: WorkMode?,
+  val seniority: Seniority?,
   val salary: SalaryRange? = null,
   val skills: Set<String> = emptySet(),
   val sourceUrl: URI,
@@ -39,7 +39,6 @@ data class JobPosting(
 ) {
   init {
     require(title.isNotBlank()) { "Title must not be blank" }
-    require(company.isNotBlank()) { "Company must not be blank" }
   }
 
   fun matchScore(wanted: Set<String>): Double =
