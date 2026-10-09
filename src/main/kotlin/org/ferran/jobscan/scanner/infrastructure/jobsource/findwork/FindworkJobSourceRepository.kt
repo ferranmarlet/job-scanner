@@ -9,7 +9,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
-import kotlin.time.toJavaInstant
 
 @Component
 class FindworkJobSourceRepository(properties: ScannerProperties) : ExternalJobSourceRepository {
@@ -35,7 +34,7 @@ class FindworkJobSourceRepository(properties: ScannerProperties) : ExternalJobSo
 
     // Findwork has no date filter!
     return response.results
-      .filter { dto -> criteria.postedAfter == null || dto.datePosted?.let { it > criteria.postedAfter.toJavaInstant() } == true }
+      .filter { dto -> criteria.postedAfter == null || dto.datePosted?.let { it > criteria.postedAfter } == true }
       .mapNotNull(FindworkJobMapper::toDomain)
   }
 
