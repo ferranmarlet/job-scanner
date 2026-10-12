@@ -11,6 +11,19 @@ variable "project_name" {
 }
 
 variable "environment" {
-  description = "Deployment environment (e.g. dev, prod)"
+  description = "Environment name (dev, staging, prod)"
   type        = string
+  default     = "dev"
+}
+
+variable "db_name" {
+  description = "Name of the initial database"
+  type        = string
+  default     = "jobscan"
+}
+
+variable "db_username" {
+  description = "Master username for RDS"
+  type        = string
+  default     = "postgres"
 }
