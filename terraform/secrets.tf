@@ -9,7 +9,7 @@ resource "random_password" "db_password" {
 resource "aws_secretsmanager_secret" "db_password" {
   name                    = "${var.project_name}/${var.environment}/db-password"
   description             = "RDS master password for ${var.project_name}-${var.environment}"
-  recovery_window_in_days = 7   # set to 0 for dev if you want instant deletion
+  recovery_window_in_days = 7 # set to 0 for dev if you want instant deletion
 
   tags = {
     Name        = "${var.project_name}-db-password"

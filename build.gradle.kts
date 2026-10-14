@@ -26,8 +26,6 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
         testImplementation("net.datafaker:datafaker:2.4.2")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-        implementation("software.amazon.awssdk:secretsmanager:2.25.0")
-        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0")
 }
 
 kotlin {
