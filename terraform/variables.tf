@@ -33,3 +33,13 @@ variable "db_app_username" {
   type        = string
   default     = "jobscan_app"
 }
+
+variable "container_image" {
+  description = "Docker image URI (e.g. from ECR or Docker Hub)"
+  default     = "your-dockerhub-user/kotlin-app:latest"
+}
+
+variable "container_port" {
+  description = "Port server listens on"
+  default     = 8080
+}
