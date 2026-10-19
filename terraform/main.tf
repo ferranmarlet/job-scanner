@@ -247,13 +247,7 @@ resource "aws_security_group" "ecs_sg" {
   name   = "${var.project_name}-${var.environment}-sg"
   vpc_id = aws_vpc.main.id
 
-  ingress {
-    from_port   = var.container_port
-    to_port     = var.container_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
+  # No ingress rules: reach the API through SSM port forwarding.
   egress {
     from_port   = 0
     to_port     = 0
@@ -283,6 +277,12 @@ resource "aws_iam_role" "ecs_instance_role" {
 resource "aws_iam_role_policy_attachment" "ecs_instance_policy" {
   role       = aws_iam_role.ecs_instance_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+# Lets the instance accept SSM sessions, used for port forwarding
+resource "aws_iam_role_policy_attachment" "ecs_instance_ssm" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
