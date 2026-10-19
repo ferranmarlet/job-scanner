@@ -34,12 +34,18 @@ variable "db_app_username" {
   default     = "jobscan_app"
 }
 
-variable "container_image" {
-  description = "Docker image URI (e.g. from ECR or Docker Hub)"
-  default     = "your-dockerhub-user/kotlin-app:latest"
+variable "container_image_tag" {
+  description = "Tag of the image in the ECR repository to deploy"
+  type        = string
+  default     = "latest"
 }
 
 variable "container_port" {
   description = "Port server listens on"
   default     = 8080
+}
+
+variable "findwork_api_key_secret_arn" {
+  description = "ARN of the Secrets Manager secret holding the Findwork API key"
+  type        = string
 }
