@@ -34,3 +34,9 @@ The API is briefly unavailable during the deployment, because the old task stops
   scripts/build_push_docker_image.sh
   terraform -chdir=terraform apply -var-file=dev.tfvars
   ```
+
+### Applying terraform changes
+```sh
+cd terraform
+terraform apply -var-file=dev.tfvars
+```
