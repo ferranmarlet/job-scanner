@@ -16,5 +16,18 @@ services:
       timeout: 5s
       retries: 10
 
+  app:
+    build: .
+    container_name: jobscan-app
+    env_file: .env.properties
+    environment:
+      # Overrides the localhost URL in .env.properties, which is for running the app outside Docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jobscan
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres-data:

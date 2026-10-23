@@ -1,5 +1,43 @@
 # jobscan
 
+## Working locally
+
+Copy `.env.example` to `.env.properties` and fill in the values. The local database username and password are the ones in `compose.yaml`.
+
+You can use docker to run the application and its database, or run the application directly on your local machine, as explained below.
+
+### To launch dockerized application locally
+
+```sh
+docker compose up --build
+```
+This starts the application and a PostgreSQL database. The API is then available at http://localhost:8080. Press Ctrl+C to stop the containers. The database keeps its data until you run `docker compose down -v`.
+
+### To launch the application on your local machine
+
+Start only the PostgreSQL local database, then run the application:
+```sh
+docker compose up -d --wait postgres
+./gradlew bootRun
+```
+
+### Other commands
+
+- To build the application:
+```sh
+./gradlew build
+```
+
+- To launch the test suite. The tests start their own temporary PostgreSQL with Testcontainers, so Docker has to be running, but the local database doesn't:
+```sh
+./gradlew test
+```
+
+- To launch a single test:
+```sh
+./gradlew test --tests {test name}
+```
+
 ## Deploying a new version
 
 Run these scripts locally to release a new version of the app. You can run them from any directory; the examples below run from the project root.
@@ -34,6 +72,8 @@ The API is briefly unavailable during the deployment, because the old task stops
   scripts/build_push_docker_image.sh
   terraform -chdir=terraform apply -var-file=dev.tfvars
   ```
+
+### Working with deployed code
 - To open a tunnel to the ECS instance:
 
   1. Install the plugin (Ubuntu, x86_64):
@@ -61,14 +101,6 @@ aws ssm start-session --region eu-west-1 --target "$INSTANCE_ID" \
 cd terraform
 terraform apply -var-file=dev.tfvars
 ```
-
-### To launch locally
-
-```sh
-docker build -t jobscan .
-docker run --rm -p 8080:8080 --env-file .env.properties jobscan
-```
-The API is then available at http://localhost:8080. Press Ctrl+C to stop the container, and --rm removes it on exit.
 
 ## Architecture
 
