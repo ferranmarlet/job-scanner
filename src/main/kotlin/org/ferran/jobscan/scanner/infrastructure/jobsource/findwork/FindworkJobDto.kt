@@ -13,7 +13,7 @@ data class FindworkJobsResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FindworkJobDto(
-  val id: Long,
+  val id: String,
   val role: String?,
   @JsonProperty("company_name") val companyName: String?,
   val location: String?,

@@ -18,7 +18,7 @@ class FindworkJobMapperTest {
     val faker = Faker()
 
     val findworkJobDto = FindworkJobDto(
-        Random.nextLong(1, 1000),
+        Random.nextLong(1, 1000).toString(),
         faker.lorem().word(),
         faker.company().name(),
         faker.address().city(),

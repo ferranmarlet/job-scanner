@@ -22,7 +22,9 @@ class FindworkJobSourceRepository(properties: ScannerProperties) : ExternalJobSo
     val response = client.get()
       .uri { builder ->
         builder.path("/jobs/")
-        if (criteria.keywords.isNotEmpty()) builder.queryParam("search", criteria.keywords.joinToString(" "))
+        if (criteria.keywords.isNotEmpty()) {
+          builder.queryParam("search", criteria.keywords.joinToString(" "))
+        }
         criteria.location?.let { builder.queryParam("location", it) }
         remoteFilter(criteria)?.let { builder.queryParam("remote", it) }
         builder.queryParam("sort_by", "date")
@@ -39,9 +41,7 @@ class FindworkJobSourceRepository(properties: ScannerProperties) : ExternalJobSo
   }
 
   private fun remoteFilter(criteria: JobSearchCriteria): Boolean? = when {
-    criteria.remote != null -> criteria.remote
     criteria.workMode == WorkMode.REMOTE -> true
-    criteria.workMode != null -> false
-    else -> null
+    else -> false
   }
 }
