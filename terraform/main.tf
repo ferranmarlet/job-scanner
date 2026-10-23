@@ -415,6 +415,14 @@ resource "aws_ecs_task_definition" "app" {
       hostPort      = var.container_port
       protocol      = "tcp"
     }]
+    environment = [
+      {
+        name  = "SPRING_DATASOURCE_URL"
+        value = "jdbc:aws-wrapper:postgresql://${aws_db_instance.main.endpoint}/${var.db_name}?wrapperPlugins=iam&sslmode=require"
+      },
+      { name = "SPRING_DATASOURCE_USERNAME", value = var.db_app_username },
+      { name = "SPRING_DATASOURCE_DRIVERCLASSNAME", value = "software.amazon.jdbc.Driver" },
+    ]
     secrets = [{
       name      = "FINDWORK_API_KEY"
       valueFrom = var.findwork_api_key_secret_arn
