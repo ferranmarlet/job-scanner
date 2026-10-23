@@ -102,6 +102,31 @@ cd terraform
 terraform apply -var-file=dev.tfvars
 ```
 
+### Setting up the database user
+
+Run this once, after the RDS instance exists and before deploying a version of the app that uses the database. The app logs in as `jobscan_app` with an IAM token, and Terraform doesn't create that user.
+
+1. Open a tunnel to RDS through the ECS instance, with `INSTANCE_ID` set as in "Open the tunnel" above:
+```sh
+RDS_HOST=$(terraform -chdir=terraform output -raw rds_endpoint | cut -d: -f1)
+
+aws ssm start-session --region eu-west-1 --target "$INSTANCE_ID" \
+--document-name AWS-StartPortForwardingSessionToRemoteHost \
+--parameters "{\"host\":[\"$RDS_HOST\"],\"portNumber\":[\"5432\"],\"localPortNumber\":[\"5433\"]}"
+```
+
+2. In another terminal, connect as the master user, whose name is `db_username` in `terraform/dev.tfvars`. Its password is in the Secrets Manager secret that RDS manages:
+```sh
+psql "host=localhost port=5433 dbname=jobscan user=<db_username> sslmode=require"
+```
+
+3. Create the user and let it manage the schema, which Flyway needs:
+```sql
+CREATE USER jobscan_app;
+GRANT rds_iam TO jobscan_app;
+GRANT ALL ON SCHEMA public TO jobscan_app;
+```
+
 ## Architecture
 
 Source: [`infrastructure-architecture.mmd`](infrastructure-architecture.mmd)
