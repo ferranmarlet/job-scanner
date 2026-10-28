@@ -1,6 +1,7 @@
 package org.ferran.jobscan.scanner.application
 
 import org.ferran.jobscan.scanner.domain.ExternalJobSourceRepository
+import org.ferran.jobscan.scanner.domain.JobPostingRepository
 import org.ferran.jobscan.scanner.domain.JobSearchCriteria
 import org.springframework.stereotype.Service
 
@@ -10,13 +11,13 @@ data class ImportJobPostingsCommand (
 
 @Service
 class ImportJobPostingsCommandHandler(
-  private val jobPostingsRepository: ExternalJobSourceRepository
+  private val externalJobSource: ExternalJobSourceRepository,
+  private val jobRepository: JobPostingRepository,
 ) {
 
   fun execute(command: ImportJobPostingsCommand) {
-    val jobPostings = this.jobPostingsRepository.findJobPostings(command.criteria)
+    val jobSourceResponse = this.externalJobSource.findJobPostings(command.criteria)
 
-    // no database to store jobPostings yet, so we just print the results
-    jobPostings.forEach(::println)
+    jobSourceResponse.forEach(this.jobRepository::save)
   }
 }
