@@ -1,23 +1,15 @@
 package org.ferran.jobscan.scanner.application
 
+import org.ferran.jobscan.scanner.application.error.JobPostingNotFoundError
 import org.ferran.jobscan.scanner.domain.JobPosting
 import org.ferran.jobscan.scanner.domain.JobPostingId
-import org.ferran.jobscan.scanner.domain.Seniority
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.JobPostingRepository
 import org.springframework.stereotype.Service
-import java.net.URI
 
 @Service
-class GetJobPostingUseCase {
-  // TODO: load from a repository once one exists
+class GetJobPostingUseCase(
+  private val jobPostingRepository: JobPostingRepository
+) {
   fun execute(id: JobPostingId): JobPosting =
-  JobPosting(
-    id = id,
-    title = "Untitled",
-    company = "Unknown",
-    location = "",
-    workMode = WorkMode.ONSITE,
-    seniority = Seniority.MID,
-    sourceUrl = URI.create("about:blank"),
-  )
+    jobPostingRepository.findById(id) ?: throw JobPostingNotFoundError(id)
 }
