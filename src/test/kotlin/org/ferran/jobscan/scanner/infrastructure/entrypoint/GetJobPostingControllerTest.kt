@@ -1,6 +1,7 @@
 package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
 import org.ferran.jobscan.scanner.application.GetJobPostingUseCase
+import org.ferran.jobscan.scanner.application.error.JobPostingNotFoundError
 import org.ferran.jobscan.scanner.domain.JobPosting
 import org.ferran.jobscan.scanner.domain.JobPostingId
 import org.ferran.jobscan.scanner.domain.PostingStatus
@@ -34,6 +35,8 @@ class GetJobPostingControllerTest {
 
   private val posting = JobPosting(
     id = JobPostingId(id),
+    externalId = "job-1",
+    externalSourceId = "findwork",
     title = "Guild Navigator",
     company = "Spacing Guild",
     location = "Arrakis",
@@ -54,6 +57,8 @@ class GetJobPostingControllerTest {
       status { isOk() }
       content { contentTypeCompatibleWith(MediaType.APPLICATION_JSON) }
       jsonPath("$.id") { value(id.toString()) }
+      jsonPath("$.externalId") { value("job-1") }
+      jsonPath("$.externalSourceId") { value("findwork") }
       jsonPath("$.title") { value("Guild Navigator") }
       jsonPath("$.company") { value("Spacing Guild") }
       jsonPath("$.location") { value("Arrakis") }
@@ -76,6 +81,19 @@ class GetJobPostingControllerTest {
     mockMvc.get("/job-postings/$id")
 
     verify(getJobPosting).execute(JobPostingId(id))
+  }
+
+  @Test
+  fun `returns 404 problem detail when the job posting does not exist`() {
+    given(getJobPosting.execute(JobPostingId(id))).willThrow(JobPostingNotFoundError(JobPostingId(id)))
+
+    mockMvc.get("/job-postings/$id").andExpect {
+      status { isNotFound() }
+      content { contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON) }
+      jsonPath("$.status") { value(404) }
+      jsonPath("$.title") { value("Job posting not found") }
+      jsonPath("$.detail") { value("Job posting $id not found") }
+    }
   }
 
   @Test

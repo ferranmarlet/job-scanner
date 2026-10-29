@@ -1,5 +1,6 @@
 package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
+import org.ferran.jobscan.scanner.application.error.JobPostingNotFoundError
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -18,5 +19,14 @@ class JobPostingExceptionHandler {
   ).apply {
     title = "Invalid job posting id"
     setProperty("parameter", ex.name)
+  }
+
+  @ExceptionHandler(JobPostingNotFoundError::class)
+  fun handleNotFound(ex: JobPostingNotFoundError): ProblemDetail =
+  ProblemDetail.forStatusAndDetail(
+    HttpStatus.NOT_FOUND,
+    ex.message ?: "Job posting not found",
+  ).apply {
+    title = "Job posting not found"
   }
 }
