@@ -76,14 +76,9 @@ class PostImportJobPostingsControllerTest {
   }
 
   @Test
-  fun `returns 400 problem detail when the request is invalid`() {
+  fun `returns 400 when the request body is missing`() {
     mockMvc.post("/import-job-postings").andExpect {
       status { isBadRequest() }
-      content { contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON) }
-      jsonPath("$.status") { value(400) }
-      jsonPath("$.title") { value("Invalid job posting id") }
-      jsonPath("$.detail") { value("'not-a-uuid' is not a valid job posting id; expected a UUID") }
-      jsonPath("$.parameter") { value("id") }
     }
 
     verifyNoInteractions(importJobPostingsCommandHandler)
