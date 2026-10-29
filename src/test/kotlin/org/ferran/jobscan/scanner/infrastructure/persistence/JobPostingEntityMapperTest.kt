@@ -16,6 +16,8 @@ import kotlin.test.assertNull
 class JobPostingEntityMapperTest {
 
   private val posting = JobPosting(
+    externalId = "job-1",
+    externalSourceId = "findwork",
     title = "Guild Navigator",
     company = "Spacing Guild",
     location = "Arrakis",
@@ -38,6 +40,8 @@ class JobPostingEntityMapperTest {
   @Test
   fun `keeps optional fields null`() {
     val minimal = JobPosting(
+      externalId = null,
+      externalSourceId = "findwork",
       title = "Guild Navigator",
       company = null,
       location = null,

@@ -12,6 +12,9 @@ import org.springframework.web.client.body
 
 @Component
 class FindworkJobSourceRepository(properties: ScannerProperties) : ExternalJobSourceRepository {
+  companion object {
+    const val EXTERNAL_JOB_SOURCE_ID = "findwork"
+  }
 
   private val client: RestClient = RestClient.builder()
     .baseUrl(properties.findworkBaseUrl)

@@ -10,6 +10,8 @@ object JobPostingEntityMapper {
   fun toEntity(posting: JobPosting): JobPostingEntity =
     JobPostingEntity(
       id = posting.id.value,
+      externalId = posting.externalId,
+      externalSourceId = posting.externalSourceId,
       title = posting.title,
       company = posting.company,
       location = posting.location,
@@ -25,6 +27,8 @@ object JobPostingEntityMapper {
   fun toDomain(entity: JobPostingEntity): JobPosting =
     JobPosting(
       id = JobPostingId(entity.id),
+      externalId = entity.externalId,
+      externalSourceId = entity.externalSourceId,
       title = entity.title,
       company = entity.company,
       location = entity.location,

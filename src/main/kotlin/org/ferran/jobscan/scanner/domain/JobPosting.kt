@@ -26,6 +26,8 @@ data class SalaryRange(val min: Int, val max: Int, val currency: String) {
 
 data class JobPosting(
   val id: JobPostingId = JobPostingId.new(),
+  val externalId: String?,
+  val externalSourceId: String,
   val title: String,
   val company: String?,
   val location: String?,

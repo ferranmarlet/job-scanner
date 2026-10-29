@@ -62,6 +62,8 @@ class ImportJobPostingsCommandHandlerTest {
   )
 
   private fun aJobPosting() = JobPosting(
+    externalId = faker.internet().uuid(),
+    externalSourceId = faker.company().name(),
     title = faker.job().title(),
     company = faker.company().name(),
     location = faker.address().country(),

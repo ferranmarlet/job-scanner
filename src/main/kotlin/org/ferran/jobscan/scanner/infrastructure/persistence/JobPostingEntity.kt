@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import org.ferran.jobscan.scanner.domain.PostingStatus
 import org.ferran.jobscan.scanner.domain.Seniority
 import org.ferran.jobscan.scanner.domain.WorkMode
@@ -20,10 +21,24 @@ import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(name = "job_posting")
+@Table(
+  name = "job_posting",
+  uniqueConstraints = [
+    UniqueConstraint(
+      name = "uq_job_posting_external_source_id_external_id",
+      columnNames = ["external_source_id", "external_id"],
+    ),
+  ],
+)
 class JobPostingEntity(
   @Id
   var id: UUID,
+
+  @Column(nullable = true)
+  var externalId: String?,
+  
+  @Column(nullable = false)
+  var externalSourceId: String,
 
   @Column(nullable = false)
   var title: String,

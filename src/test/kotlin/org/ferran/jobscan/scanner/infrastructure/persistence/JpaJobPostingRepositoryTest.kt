@@ -33,7 +33,13 @@ class JpaJobPostingRepositoryTest {
   @Autowired
   private lateinit var entityManager: EntityManager
 
-  private fun posting(url: String = "https://example.com/jobs/1") = JobPosting(
+  private fun posting(
+    url: String = "https://example.com/jobs/1",
+    externalId: String? = "job-1",
+    externalSourceId: String = "findwork",
+  ) = JobPosting(
+    externalId = externalId,
+    externalSourceId = externalSourceId,
     title = "Guild Navigator",
     company = "Spacing Guild",
     location = "Arrakis",
@@ -92,8 +98,28 @@ class JpaJobPostingRepositoryTest {
     sut.save(posting())
     flushAndClear()
 
-    sut.save(posting())
+    sut.save(posting(externalId = "job-2"))
 
     assertFailsWith<ConstraintViolationException> { entityManager.flush() }
+  }
+
+  @Test
+  fun `rejects a second posting with the same external source and external id`() {
+    sut.save(posting())
+    flushAndClear()
+
+    sut.save(posting(url = "https://example.com/jobs/2"))
+
+    assertFailsWith<ConstraintViolationException> { entityManager.flush() }
+  }
+
+  @Test
+  fun `allows the same external id from a different external source`() {
+    sut.save(posting())
+    flushAndClear()
+
+    sut.save(posting(url = "https://example.com/jobs/2", externalSourceId = "other"))
+
+    entityManager.flush()
   }
 }

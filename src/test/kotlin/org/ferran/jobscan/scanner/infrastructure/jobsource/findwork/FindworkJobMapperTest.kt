@@ -30,6 +30,8 @@ class FindworkJobMapperTest {
     val jobPosting = findworkJobDto.let(FindworkJobMapper::toDomain)
 
     val expected = JobPosting(
+      externalId = findworkJobDto.id,
+      externalSourceId = FindworkJobSourceRepository.EXTERNAL_JOB_SOURCE_ID,
       title = findworkJobDto.role!!,
       company = findworkJobDto.companyName,
       location = findworkJobDto.location,

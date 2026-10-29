@@ -14,6 +14,8 @@ object FindworkJobMapper {
 
     return JobPosting(
       title = title,
+      externalId = dto.id,
+      externalSourceId = FindworkJobSourceRepository.EXTERNAL_JOB_SOURCE_ID,
       company = company,
       location = dto.location.orEmpty(),
       workMode = if (dto.remote) WorkMode.REMOTE else WorkMode.ONSITE,
