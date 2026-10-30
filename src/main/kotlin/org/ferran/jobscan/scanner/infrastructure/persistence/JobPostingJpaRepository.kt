@@ -5,4 +5,6 @@ import java.util.UUID
 
 interface JobPostingJpaRepository : JpaRepository<JobPostingEntity, UUID> {
   fun existsBySourceUrl(sourceUrl: String): Boolean
+
+  fun findByExternalSourceIdAndExternalId(externalSourceId: String, externalId: String): JobPostingEntity?
 }

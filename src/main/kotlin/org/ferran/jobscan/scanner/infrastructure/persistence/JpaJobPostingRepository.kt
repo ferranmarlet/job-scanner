@@ -13,8 +13,25 @@ class JpaJobPostingRepository(
   private val jpaRepository: JobPostingJpaRepository,
 ) : JobPostingRepository {
 
+  @Transactional
   override fun save(posting: JobPosting) {
-    jpaRepository.save(JobPostingEntityMapper.toEntity(posting))
+    jpaRepository.save(JobPostingEntityMapper.toEntity(withExistingIdentity(posting)))
+  }
+
+  // A posting imported again arrives with a new id and default lifecycle values, so it takes
+  // over those of the stored posting it updates.
+  private fun withExistingIdentity(posting: JobPosting): JobPosting {
+    val existing = posting.externalId
+      ?.let { jpaRepository.findByExternalSourceIdAndExternalId(posting.externalSourceId, it) }
+      ?: return posting
+
+    if (existing.id == posting.id.value) return posting
+
+    return posting.copy(
+      id = JobPostingId(existing.id),
+      status = existing.status,
+      discoveredAt = existing.discoveredAt,
+    )
   }
 
   // Transactional because mapping reads the lazy skills collection

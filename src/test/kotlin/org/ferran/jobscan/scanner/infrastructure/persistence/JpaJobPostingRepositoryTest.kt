@@ -104,13 +104,58 @@ class JpaJobPostingRepositoryTest {
   }
 
   @Test
-  fun `rejects a second posting with the same external source and external id`() {
+  fun `database rejects a second row with the same external source and external id`() {
     sut.save(posting())
     flushAndClear()
 
-    sut.save(posting(url = "https://example.com/jobs/2"))
+    entityManager.persist(JobPostingEntityMapper.toEntity(posting(url = "https://example.com/jobs/2")))
 
     assertFailsWith<ConstraintViolationException> { entityManager.flush() }
+  }
+
+  @Test
+  fun `updates the stored posting when the external source and external id match`() {
+    val stored = posting()
+    sut.save(stored)
+    flushAndClear()
+
+    val imported = posting(url = "https://example.com/jobs/2").copy(
+      title = "Mentat",
+      skills = setOf("computation"),
+      status = PostingStatus.OPEN,
+      discoveredAt = Instant.parse("2026-11-01T10:00:00Z"),
+    )
+    sut.save(imported)
+    flushAndClear()
+
+    val expected = imported.copy(id = stored.id, status = stored.status, discoveredAt = stored.discoveredAt)
+    assertEquals(expected, sut.findById(stored.id))
+    assertNull(sut.findById(imported.id))
+  }
+
+  @Test
+  fun `saving a posting under its own id persists its status change`() {
+    val stored = posting().copy(status = PostingStatus.OPEN)
+    sut.save(stored)
+    flushAndClear()
+
+    sut.save(stored.markApplied())
+    flushAndClear()
+
+    assertEquals(PostingStatus.APPLIED, sut.findById(stored.id)?.status)
+  }
+
+  @Test
+  fun `stores postings without an external id as separate postings`() {
+    val first = posting(externalId = null)
+    val second = posting(url = "https://example.com/jobs/2", externalId = null)
+
+    sut.save(first)
+    sut.save(second)
+    flushAndClear()
+
+    assertEquals(first, sut.findById(first.id))
+    assertEquals(second, sut.findById(second.id))
   }
 
   @Test
