@@ -6,5 +6,6 @@ import java.time.Duration
 
 @ConfigurationProperties("jobscan.scanner")
 data class ScannerProperties(
-	val findWorksApiKey: String,
+	val findworkApiKey: String,
+	val findworkBaseUrl: String,
 )
