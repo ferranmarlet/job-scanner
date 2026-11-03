@@ -2,17 +2,9 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.0"
+      version = "~> 6.0"
     }
   }
-}
-
-provider "aws" {
-  region = var.aws_region
 }
 
 # ──────────────────────────────────────────
@@ -181,33 +173,51 @@ resource "aws_db_instance" "main" {
   identifier        = "${var.project_name}-${var.environment}"
   engine            = "postgres"
   engine_version    = "16"
-  instance_class    = "db.t3.micro"   # Free Tier eligible
-  allocated_storage = 20              # Free Tier: up to 20 GB gp2
+  instance_class    = "db.t3.micro" # Free Tier eligible
+  allocated_storage = 20            # Free Tier: up to 20 GB gp2
   storage_type      = "gp2"
 
   db_name  = var.db_name
   username = var.db_username
   password = random_password.db_password.result
 
-  db_subnet_group_name   = aws_db_subnet_group.main.name
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  parameter_group_name   = aws_db_parameter_group.postgres.name
+  db_subnet_group_name                = aws_db_subnet_group.main.name
+  vpc_security_group_ids              = [aws_security_group.rds.id]
+  parameter_group_name                = aws_db_parameter_group.postgres.name
+  iam_database_authentication_enabled = true
 
   # Free Tier: keep these off to avoid charges
-  multi_az                = false
-  publicly_accessible     = false
-  storage_encrypted       = false   # encryption not available on Free Tier t3.micro
+  multi_az                     = false
+  publicly_accessible          = false
+  storage_encrypted            = false # encryption not available on Free Tier t3.micro
   performance_insights_enabled = false
 
-  backup_retention_period = 7        # days — free up to 100% of DB storage size
+  backup_retention_period = 7 # days — free up to 100% of DB storage size
   backup_window           = "03:00-04:00"
   maintenance_window      = "Mon:04:00-Mon:05:00"
 
-  deletion_protection = false        # set true for production
-  skip_final_snapshot = true         # set false for production
+  deletion_protection = false # set true for production
+  skip_final_snapshot = true  # set false for production
 
   tags = {
     Name        = "${var.project_name}-${var.environment}"
     Environment = var.environment
   }
 }
+
+resource "aws_iam_policy" "rds_iam_auth" {
+  name        = "${var.project_name}-${var.environment}-rds-iam-auth"
+  description = "Allows IAM authentication to RDS"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = "rds-db:connect"
+      Resource = "arn:aws:rds-db:${var.aws_region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_db_instance.main.resource_id}/${var.db_app_username}"
+    }]
+  })
+}
+
+# Needed to get the account ID dynamically
+data "aws_caller_identity" "current" {}

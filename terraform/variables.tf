@@ -27,3 +27,9 @@ variable "db_username" {
   type        = string
   default     = "postgres"
 }
+
+variable "db_app_username" {
+  description = "Application DB user that authenticates via IAM (must be granted rds_iam)"
+  type        = string
+  default     = "jobscan_app"
+}
