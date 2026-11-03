@@ -1,1 +1,5 @@
-environment = "dev"
+aws_region   = "eu-west-1"
+project_name = "jobscan"
+environment  = "dev"
+db_name      = "jobscan"
+db_username  = "postgres"
