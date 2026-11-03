@@ -1,6 +1,6 @@
 package org.ferran.jobscan.scanner.domain
 
-import kotlin.time.Instant
+import java.time.Instant
 
 data class JobSearchCriteria(
     val keywords: List<String> = emptyList(),
