@@ -34,9 +34,38 @@ The API is briefly unavailable during the deployment, because the old task stops
   scripts/build_push_docker_image.sh
   terraform -chdir=terraform apply -var-file=dev.tfvars
   ```
+- To open a tunnel to the ECS instance:
+
+  1. Install the plugin (Ubuntu, x86_64):
+```sh
+curl -fsSL -o /tmp/session-manager-plugin.deb \
+https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb
+sudo dpkg -i /tmp/session-manager-plugin.deb
+session-manager-plugin --version
+```
+
+  2. Open the tunnel:
+```sh
+ASG=$(terraform -chdir=terraform output -raw asg_name)
+INSTANCE_ID=$(aws ec2 describe-instances --region eu-west-1 \
+--filters "Name=tag:aws:autoscaling:groupName,Values=$ASG" "Name=instance-state-name,Values=running" \
+--query 'Reservations[0].Instances[0].InstanceId' --output text)
+
+aws ssm start-session --region eu-west-1 --target "$INSTANCE_ID" \
+--document-name AWS-StartPortForwardingSession \
+--parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
+```
 
 ### Applying terraform changes
 ```sh
 cd terraform
 terraform apply -var-file=dev.tfvars
 ```
+
+### To launch locally
+
+```sh
+docker build -t jobscan .
+docker run --rm -p 8080:8080 --env-file .env.properties jobscan
+```
+The API is then available at http://localhost:8080. Press Ctrl+C to stop the container, and --rm removes it on exit.
