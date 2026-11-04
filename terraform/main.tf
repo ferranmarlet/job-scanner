@@ -325,7 +325,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_findwork_secret" {
 
 # --- EC2 Launch Template (t2.micro - Free Tier) ---
 data "aws_ssm_parameter" "ecs_ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id"
 }
 
 resource "aws_launch_template" "ecs_lt" {
