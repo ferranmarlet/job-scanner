@@ -23,11 +23,6 @@ output "app_security_group_id" {
   value       = aws_security_group.app.id
 }
 
-output "ec2_public_ip" {
-  description = "Public IP of the ECS EC2 instance"
-  value       = "Check the EC2 console — the instance is in the '${var.project_name}-cluster' ASG"
-}
-
 output "ecs_cluster_name" {
   value = aws_ecs_cluster.main.name
 }
@@ -37,6 +32,7 @@ output "ecr_repository_url" {
   value       = aws_ecr_repository.app.repository_url
 }
 
-output "app_url" {
-  value = "http://<ec2-public-ip>:${var.container_port}"
+output "asg_name" {
+  description = "Auto Scaling group name, used to find the instance for SSM port forwarding"
+  value       = aws_autoscaling_group.ecs_asg.name
 }
