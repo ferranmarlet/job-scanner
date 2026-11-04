@@ -186,10 +186,10 @@ resource "aws_db_instance" "main" {
   parameter_group_name                = aws_db_parameter_group.postgres.name
   iam_database_authentication_enabled = true
 
-  # Free Tier: keep these off to avoid charges
+  # Availability, network exposure, encryption and monitoring
   multi_az                     = false
   publicly_accessible          = false
-  storage_encrypted            = false # encryption not available on Free Tier t3.micro
+  storage_encrypted            = true # uses the default aws/rds KMS key
   performance_insights_enabled = false
 
   backup_retention_period = 7 # days — free up to 100% of DB storage size
