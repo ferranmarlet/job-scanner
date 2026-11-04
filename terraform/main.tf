@@ -219,5 +219,26 @@ resource "aws_iam_policy" "rds_iam_auth" {
   })
 }
 
+# Assumed by the app's ECS tasks (the task role, not the task execution role)
+resource "aws_iam_role" "app_task" {
+  name        = "${var.project_name}-${var.environment}-app-task"
+  description = "Role assumed by the application's ECS tasks"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRole"
+      Principal = { Service = "ecs-tasks.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "app_task_rds_iam_auth" {
+  role       = aws_iam_role.app_task.name
+  policy_arn = aws_iam_policy.rds_iam_auth.arn
+}
+
 # Needed to get the account ID dynamically
 data "aws_caller_identity" "current" {}
+
