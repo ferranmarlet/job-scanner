@@ -1,0 +1,17 @@
+# Secrets
+.env*
+
+# Build output and caches
+build
+bin
+.gradle
+.kotlin
+
+# Version control, infrastructure and IDE files
+.git
+terraform
+.classpath
+.project
+.settings
+.idea
+*.iml
