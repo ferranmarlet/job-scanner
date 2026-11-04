@@ -242,3 +242,204 @@ resource "aws_iam_role_policy_attachment" "app_task_rds_iam_auth" {
 # Needed to get the account ID dynamically
 data "aws_caller_identity" "current" {}
 
+# --- Security Group ---
+resource "aws_security_group" "ecs_sg" {
+  name   = "${var.project_name}-${var.environment}-sg"
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = var.container_port
+    to_port     = var.container_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# --- ECS Cluster ---
+resource "aws_ecs_cluster" "main" {
+  name = "${var.project_name}-cluster"
+}
+
+# --- IAM Role for EC2 ECS instances ---
+resource "aws_iam_role" "ecs_instance_role" {
+  name = "${var.project_name}-${var.environment}-ecs-instance-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_instance_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  name = "${var.project_name}-${var.environment}-ecs-instance-profile"
+  role = aws_iam_role.ecs_instance_role.name
+}
+
+# --- IAM Role for ECS Task Execution ---
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "${var.project_name}-task-execution-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "ecs-tasks.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+# Lets ECS read the secret and inject it into the container at startup
+resource "aws_iam_role_policy" "ecs_task_execution_findwork_secret" {
+  name = "read-findwork-api-key"
+  role = aws_iam_role.ecs_task_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = "secretsmanager:GetSecretValue"
+      Resource = var.findwork_api_key_secret_arn
+    }]
+  })
+}
+
+# --- EC2 Launch Template (t2.micro - Free Tier) ---
+data "aws_ssm_parameter" "ecs_ami" {
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
+}
+
+resource "aws_launch_template" "ecs_lt" {
+  name_prefix   = "${var.project_name}-lt"
+  image_id      = data.aws_ssm_parameter.ecs_ami.value
+  instance_type = "t2.micro"
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ecs_instance_profile.name
+  }
+
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.ecs_sg.id, aws_security_group.app.id]
+  }
+
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    echo ECS_CLUSTER=${aws_ecs_cluster.main.name} >> /etc/ecs/ecs.config
+  EOF
+  )
+}
+
+# --- Auto Scaling Group (1 t2.micro instance) ---
+resource "aws_autoscaling_group" "ecs_asg" {
+  desired_capacity    = 1
+  min_size            = 1
+  max_size            = 1
+  vpc_zone_identifier = [aws_subnet.public_a.id]
+
+  launch_template {
+    id      = aws_launch_template.ecs_lt.id
+    version = "$Latest"
+  }
+}
+
+# --- ECR Repository ---
+resource "aws_ecr_repository" "app" {
+  name                 = "${var.project_name}-${var.environment}"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+# Keeps storage costs down by expiring old images
+resource "aws_ecr_lifecycle_policy" "app" {
+  repository = aws_ecr_repository.app.name
+
+  policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "Keep only the 5 most recent images"
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 5
+      }
+      action = { type = "expire" }
+    }]
+  })
+}
+
+# --- CloudWatch Log Group ---
+resource "aws_cloudwatch_log_group" "app" {
+  name              = "/ecs/${var.project_name}-${var.environment}"
+  retention_in_days = 7
+}
+
+# --- ECS Task Definition ---
+resource "aws_ecs_task_definition" "app" {
+  family                   = var.project_name
+  network_mode             = "bridge"
+  requires_compatibilities = ["EC2"]
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.app_task.arn
+
+  container_definitions = jsonencode([{
+    name      = var.project_name
+    image     = "${aws_ecr_repository.app.repository_url}:${var.container_image_tag}"
+    cpu       = 512
+    memory    = 768
+    essential = true
+    portMappings = [{
+      containerPort = var.container_port
+      hostPort      = var.container_port
+      protocol      = "tcp"
+    }]
+    secrets = [{
+      name      = "FINDWORK_API_KEY"
+      valueFrom = var.findwork_api_key_secret_arn
+    }]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.app.name
+        awslogs-region        = var.aws_region
+        awslogs-stream-prefix = "ecs"
+      }
+    }
+  }])
+}
+
+# --- ECS Service ---
+resource "aws_ecs_service" "app" {
+  name            = "${var.project_name}-${var.environment}-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.app.arn
+  desired_count   = 1
+  launch_type     = "EC2"
+
+  # The single instance can't run two tasks on the same host port,
+  # so stop the old task before starting the new one.
+  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 100
+}
