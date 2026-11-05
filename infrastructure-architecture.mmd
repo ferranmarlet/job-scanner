@@ -1,0 +1,37 @@
+%% source: terraform/main.tf, terraform/variables.tf, terraform/dev.tfvars (environment: dev, working tree)
+%% source: runtime edges to Findwork from src/main/resources/application.properties; operator edge from README.md; deployment workflow (scripts/*.sh) left out on purpose
+flowchart LR
+    operator(["Operator<br/>AWS CLI"])
+    findworkApi["Findwork API<br/>findwork.dev/api"]
+
+    subgraph awsAccount["AWS account, eu-west-1 (dev)"]
+        internetGateway["Internet Gateway<br/>only route to 0.0.0.0/0, public subnet only"]
+
+        subgraph vpc["VPC 10.0.0.0/16"]
+            subgraph publicSubnet["Public subnet 10.0.10.0/24 (eu-west-1a)"]
+                appService["ECS service jobscan-dev-service<br/>cluster jobscan-cluster, EC2 launch type, desired 1<br/>task: 512 CPU, 768 MiB, bridge mode, port 8080"]
+                ecsInstance["EC2 container instance<br/>t2.micro, ECS-optimized AL2023, public IP<br/>no inbound SG rules, all outbound<br/>ASG min 0 / desired 0 / max 1"]
+            end
+
+            subgraph privateSubnets["Private subnets 10.0.1.0/24 + 10.0.2.0/24 (eu-west-1a, b)"]
+                rdsPostgres[("RDS PostgreSQL 16, database jobscan<br/>db.t3.micro, 20 GB gp2, single-AZ, not public<br/>encrypted with aws/rds key, IAM auth on<br/>7-day backups, no deletion protection")]
+            end
+        end
+
+        subgraph regionalServices["Regional services"]
+            ecrRepository["ECR jobscan-dev<br/>mutable tags, scan on push<br/>keeps the 5 most recent images"]
+            cloudwatchLogs["CloudWatch Logs<br/>/ecs/jobscan-dev, 7-day retention"]
+            findworkSecret["Secrets Manager<br/>Findwork API key<br/>created outside Terraform, ARN from tfvars"]
+        end
+    end
+
+    operator ~~~ appService
+    operator -->|"port-forwards 8080 via SSM session"| ecsInstance
+
+    appService -->|"runs task on"| ecsInstance
+    ecrRepository -->|"supplies image to"| appService
+    findworkSecret -->|"injects FINDWORK_API_KEY at startup into"| appService
+    ecsInstance -->|"ships task logs via awslogs to"| cloudwatchLogs
+    appService -->|"sends outbound HTTPS through"| internetGateway
+    internetGateway -->|"reaches"| findworkApi
+    appService -.->|"allowed tcp/5432 and rds-db:connect as jobscan_app<br/>app has no database client yet"| rdsPostgres
