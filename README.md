@@ -20,6 +20,14 @@ Start only the PostgreSQL local database, then run the application:
 docker compose up -d --wait postgres
 ./gradlew bootRun
 ```
+Or to log debug messages on the CLI:
+```sh
+./gradlew bootRun --args='--logging.level.web=DEBUG'
+```
+Or to enable debugging:
+```sh
+./gradlew bootRun --args='--logging.level.web=DEBUG' --debug-jvm
+```
 
 ### Other commands
 
