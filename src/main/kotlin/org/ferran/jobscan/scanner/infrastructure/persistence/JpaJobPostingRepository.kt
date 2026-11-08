@@ -10,7 +10,7 @@ import java.net.URI
 
 @Component
 class JpaJobPostingRepository(
-  private val jpaRepository: JobPostingJpaRepository,
+  private val jpaRepository: JobPostingEntityRepository,
 ) : JobPostingRepository {
 
   @Transactional
