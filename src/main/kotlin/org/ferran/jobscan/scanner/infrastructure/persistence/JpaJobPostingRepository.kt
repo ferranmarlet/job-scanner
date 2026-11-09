@@ -4,6 +4,9 @@ import org.ferran.jobscan.scanner.domain.JobPosting
 import org.ferran.jobscan.scanner.domain.JobPostingFilter
 import org.ferran.jobscan.scanner.domain.JobPostingId
 import org.ferran.jobscan.scanner.domain.JobPostingRepository
+import org.ferran.jobscan.scanner.domain.PagedResponse
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -45,13 +48,28 @@ class JpaJobPostingRepository(
     jpaRepository.existsBySourceUrl(url.toString())
 
   @Transactional(readOnly = true)
-  override fun findAll(filter: JobPostingFilter): List<JobPosting> {
+  override fun findAll(filter: JobPostingFilter, page: Int?): PagedResponse<JobPosting> {
     val spec = Specification.allOf(
       JobPostingSpecs.hasExternalSourceId(filter.externalSourceId),
       JobPostingSpecs.hasWorkMode(filter.workMode),
       JobPostingSpecs.hasStatus(filter.status),
     )
 
-    return jpaRepository.findAll(spec).map(JobPostingEntityMapper::toDomain)
+    val pageable = PageRequest.of(page ?: 0, PAGE_SIZE, SORT)
+    val result = jpaRepository.findAll(spec, pageable)
+
+    return PagedResponse(
+      items = result.content.map(JobPostingEntityMapper::toDomain),
+      page = result.number,
+      totalPages = result.totalPages,
+      totalItems = result.totalElements.toInt(),
+    )
+  }
+
+  private companion object {
+    const val PAGE_SIZE = 20
+
+    // id is a tiebreaker so rows with the same discoveredAt always come in the same order across pages
+    val SORT: Sort = Sort.by(Sort.Order.desc("discoveredAt"), Sort.Order.asc("id"))
   }
 }
