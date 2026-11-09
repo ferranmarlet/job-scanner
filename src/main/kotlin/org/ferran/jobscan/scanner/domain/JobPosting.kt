@@ -7,7 +7,8 @@ import java.util.UUID
 @JvmInline
 value class JobPostingId(val value: UUID) {
   companion object {
-    fun new() = JobPostingId(UUID.randomUUID())
+    fun new() =
+      JobPostingId(UUID.randomUUID())
   }
 }
 
@@ -44,8 +45,8 @@ data class JobPosting(
   }
 
   fun matchScore(wanted: Set<String>): Double =
-  if (wanted.isEmpty()) 0.0
-  else skills.count { it.lowercase() in wanted.map(String::lowercase) }.toDouble() / wanted.size
+    if (wanted.isEmpty()) 0.0
+    else skills.count { it.lowercase() in wanted.map(String::lowercase) }.toDouble() / wanted.size
 
   fun markApplied(): JobPosting {
     check(status == PostingStatus.OPEN) { "Can only apply to an open posting, was $status" }
