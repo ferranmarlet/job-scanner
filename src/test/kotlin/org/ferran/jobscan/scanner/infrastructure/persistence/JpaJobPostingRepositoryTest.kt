@@ -33,24 +33,27 @@ class JpaJobPostingRepositoryTest {
   @Autowired
   private lateinit var entityManager: EntityManager
 
+  val faker = Faker()
+
   private fun posting(
-    url: String = "https://example.com/jobs/1",
-    externalId: String? = "job-1",
+    url: String = faker.internet().url(),
+    externalId: String? = faker.lorem().characters(),
     externalSourceId: String = "findwork",
-  ) = JobPosting(
-    externalId = externalId,
-    externalSourceId = externalSourceId,
-    title = "Guild Navigator",
-    company = "Spacing Guild",
-    location = "Arrakis",
-    workMode = WorkMode.HYBRID,
-    seniority = Seniority.SENIOR,
-    salary = SalaryRange(min = 60_000, max = 80_000, currency = "EUR"),
-    skills = setOf("prescience", "future sight"),
-    sourceUrl = URI.create(url),
-    status = PostingStatus.APPLIED,
-    discoveredAt = Instant.parse("2026-10-30T09:15:00Z"),
-  )
+  ) =
+    JobPosting(
+      externalId = externalId,
+      externalSourceId = externalSourceId,
+      title = "Guild Navigator",
+      company = "Spacing Guild",
+      location = "Arrakis",
+      workMode = WorkMode.HYBRID,
+      seniority = Seniority.SENIOR,
+      salary = SalaryRange(min = 60_000, max = 80_000, currency = "EUR"),
+      skills = setOf("prescience", "future sight"),
+      sourceUrl = URI.create(url),
+      status = PostingStatus.APPLIED,
+      discoveredAt = Instant.parse("2026-10-30T09:15:00Z"),
+    )
 
   private fun flushAndClear() {
     entityManager.flush()
@@ -95,31 +98,34 @@ class JpaJobPostingRepositoryTest {
 
   @Test
   fun `rejects a second posting with the same source url`() {
-    sut.save(posting())
+    val url = faker.internet().url()
+    sut.save(posting(url))
     flushAndClear()
 
-    sut.save(posting(externalId = "job-2"))
+    sut.save(posting(url = url, externalId = "job-2"))
 
     assertFailsWith<ConstraintViolationException> { entityManager.flush() }
   }
 
   @Test
   fun `database rejects a second row with the same external source and external id`() {
-    sut.save(posting())
+    val externalId = faker.lorem().characters()
+    sut.save(posting(externalId = externalId))
     flushAndClear()
 
-    entityManager.persist(JobPostingEntityMapper.toEntity(posting(url = "https://example.com/jobs/2")))
+    entityManager.persist(JobPostingEntityMapper.toEntity(posting(url = "https://example.com/jobs/2", externalId = externalId)))
 
     assertFailsWith<ConstraintViolationException> { entityManager.flush() }
   }
 
   @Test
   fun `updates the stored posting when the external source and external id match`() {
-    val stored = posting()
+    val externalId = faker.lorem().characters()
+    val stored = posting(externalId =externalId)
     sut.save(stored)
     flushAndClear()
 
-    val imported = posting(url = "https://example.com/jobs/2").copy(
+    val imported = posting(url = "https://example.com/jobs/2", externalId = externalId).copy(
       title = "Mentat",
       skills = setOf("computation"),
       status = PostingStatus.OPEN,
