@@ -11,5 +11,5 @@ data class JobSearchCriteria(
 
 
 interface ExternalJobSourceRepository {
-  fun findJobPostings(criteria: JobSearchCriteria): List<JobPosting>
+    fun findJobPostings(criteria: JobSearchCriteria): List<JobPosting>
 }

@@ -9,5 +9,5 @@ import org.springframework.boot.runApplication
 class JobscanApplication
 
 fun main(args: Array<String>) {
-	runApplication<JobscanApplication>(*args)
+    runApplication<JobscanApplication>(*args)
 }

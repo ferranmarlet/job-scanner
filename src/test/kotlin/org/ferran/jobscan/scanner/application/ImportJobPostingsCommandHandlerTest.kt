@@ -18,57 +18,59 @@ import java.util.concurrent.TimeUnit
 @Tag("unit")
 class ImportJobPostingsCommandHandlerTest {
 
-  private val jobSourceRepository: ExternalJobSourceRepository = mock()
-  private val jobPostingRepository: JobPostingRepository = mock()
+    private val jobSourceRepository: ExternalJobSourceRepository = mock()
+    private val jobPostingRepository: JobPostingRepository = mock()
 
-  val faker = Faker()
+    val faker = Faker()
 
-  private val sut = ImportJobPostingsCommandHandler(jobSourceRepository, jobPostingRepository)
+    private val sut = ImportJobPostingsCommandHandler(jobSourceRepository, jobPostingRepository)
 
-  @Test
-  fun `should call JobSources with required parameters`() {
-    val importJobPostingsCommand = anImportJobPostingsCommand()
+    @Test
+    fun `should call JobSources with required parameters`() {
+        val importJobPostingsCommand = anImportJobPostingsCommand()
 
-    sut.execute(importJobPostingsCommand)
+        sut.execute(importJobPostingsCommand)
 
-    verify(jobSourceRepository).findJobPostings(importJobPostingsCommand.criteria)
-  }
+        verify(jobSourceRepository).findJobPostings(importJobPostingsCommand.criteria)
+    }
 
-  @Test
-  fun `should save every job posting returned by JobSources`() {
-    val importJobPostingsCommand = anImportJobPostingsCommand()
-    val firstPosting = aJobPosting()
-    val secondPosting = aJobPosting()
-    `when`(jobSourceRepository.findJobPostings(importJobPostingsCommand.criteria))
-      .thenReturn(listOf(firstPosting, secondPosting))
+    @Test
+    fun `should save every job posting returned by JobSources`() {
+        val importJobPostingsCommand = anImportJobPostingsCommand()
+        val firstPosting = aJobPosting()
+        val secondPosting = aJobPosting()
+        `when`(jobSourceRepository.findJobPostings(importJobPostingsCommand.criteria))
+            .thenReturn(listOf(firstPosting, secondPosting))
 
-    sut.execute(importJobPostingsCommand)
+        sut.execute(importJobPostingsCommand)
 
-    verify(jobPostingRepository).save(firstPosting)
-    verify(jobPostingRepository).save(secondPosting)
-    verifyNoMoreInteractions(jobPostingRepository)
-  }
+        verify(jobPostingRepository).save(firstPosting)
+        verify(jobPostingRepository).save(secondPosting)
+        verifyNoMoreInteractions(jobPostingRepository)
+    }
 
-  private fun anImportJobPostingsCommand() = ImportJobPostingsCommand(
-    JobSearchCriteria(
-      listOf(
-        faker.lordOfTheRings().character(),
-        faker.lordOfTheRings().character(),
-      ),
-      faker.address().country(),
-      faker.timeAndDate().past(30, TimeUnit.DAYS),
-      WorkMode.REMOTE,
-    )
-  )
+    private fun anImportJobPostingsCommand() =
+        ImportJobPostingsCommand(
+            JobSearchCriteria(
+                listOf(
+                    faker.lordOfTheRings().character(),
+                    faker.lordOfTheRings().character(),
+                ),
+                faker.address().country(),
+                faker.timeAndDate().past(30, TimeUnit.DAYS),
+                WorkMode.REMOTE,
+            )
+        )
 
-  private fun aJobPosting() = JobPosting(
-    externalId = faker.internet().uuid(),
-    externalSourceId = faker.company().name(),
-    title = faker.job().title(),
-    company = faker.company().name(),
-    location = faker.address().country(),
-    workMode = WorkMode.REMOTE,
-    seniority = null,
-    sourceUrl = URI.create("https://${faker.internet().domainName()}"),
-  )
+    private fun aJobPosting() =
+        JobPosting(
+            externalId = faker.internet().uuid(),
+            externalSourceId = faker.company().name(),
+            title = faker.job().title(),
+            company = faker.company().name(),
+            location = faker.address().country(),
+            workMode = WorkMode.REMOTE,
+            seniority = null,
+            sourceUrl = URI.create("https://${faker.internet().domainName()}"),
+        )
 }

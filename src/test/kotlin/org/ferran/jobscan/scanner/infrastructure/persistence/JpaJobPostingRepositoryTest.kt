@@ -28,163 +28,162 @@ import kotlin.test.assertTrue
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(PostgresTestConfiguration::class, JpaJobPostingRepository::class)
 class JpaJobPostingRepositoryTest {
+    @Autowired
+    private lateinit var sut: JpaJobPostingRepository
 
-  @Autowired
-  private lateinit var sut: JpaJobPostingRepository
+    @Autowired
+    private lateinit var entityManager: EntityManager
 
-  @Autowired
-  private lateinit var entityManager: EntityManager
+    val faker = Faker()
 
-  val faker = Faker()
+    private fun posting(
+        url: String = faker.internet().url(),
+        externalId: String? = faker.lorem().characters(),
+        externalSourceId: String = "findwork",
+    ) =
+        JobPosting(
+            externalId = externalId,
+            externalSourceId = externalSourceId,
+            title = "Guild Navigator",
+            company = "Spacing Guild",
+            location = "Arrakis",
+            workMode = WorkMode.HYBRID,
+            seniority = Seniority.SENIOR,
+            salary = SalaryRange(min = 60_000, max = 80_000, currency = "EUR"),
+            skills = setOf("prescience", "future sight"),
+            sourceUrl = URI.create(url),
+            status = PostingStatus.APPLIED,
+            discoveredAt = Instant.parse("2026-10-30T09:15:00Z"),
+        )
 
-  private fun posting(
-    url: String = faker.internet().url(),
-    externalId: String? = faker.lorem().characters(),
-    externalSourceId: String = "findwork",
-  ) =
-    JobPosting(
-      externalId = externalId,
-      externalSourceId = externalSourceId,
-      title = "Guild Navigator",
-      company = "Spacing Guild",
-      location = "Arrakis",
-      workMode = WorkMode.HYBRID,
-      seniority = Seniority.SENIOR,
-      salary = SalaryRange(min = 60_000, max = 80_000, currency = "EUR"),
-      skills = setOf("prescience", "future sight"),
-      sourceUrl = URI.create(url),
-      status = PostingStatus.APPLIED,
-      discoveredAt = Instant.parse("2026-10-30T09:15:00Z"),
-    )
+    private fun flushAndClear() {
+        entityManager.flush()
+        entityManager.clear()
+    }
 
-  private fun flushAndClear() {
-    entityManager.flush()
-    entityManager.clear()
-  }
+    @Test
+    fun `stores and loads every field`() {
+        val posting = posting()
 
-  @Test
-  fun `stores and loads every field`() {
-    val posting = posting()
+        sut.save(posting)
+        flushAndClear()
 
-    sut.save(posting)
-    flushAndClear()
+        assertEquals(posting, sut.findById(posting.id))
+    }
 
-    assertEquals(posting, sut.findById(posting.id))
-  }
+    @Test
+    fun `loads a posting without salary or skills`() {
+        val posting = posting().copy(salary = null, skills = emptySet(), company = null, workMode = null)
 
-  @Test
-  fun `loads a posting without salary or skills`() {
-    val posting = posting().copy(salary = null, skills = emptySet(), company = null, workMode = null)
+        sut.save(posting)
+        flushAndClear()
 
-    sut.save(posting)
-    flushAndClear()
+        assertEquals(posting, sut.findById(posting.id))
+    }
 
-    assertEquals(posting, sut.findById(posting.id))
-  }
+    @Test
+    fun `returns null when the posting does not exist`() {
+        assertNull(sut.findById(JobPostingId.new()))
+    }
 
-  @Test
-  fun `returns null when the posting does not exist`() {
-    assertNull(sut.findById(JobPostingId.new()))
-  }
+    @Test
+    fun `finds out whether a source url exists`() {
+        val posting = posting()
 
-  @Test
-  fun `finds out whether a source url exists`() {
-    val posting = posting()
+        sut.save(posting)
+        flushAndClear()
 
-    sut.save(posting)
-    flushAndClear()
+        assertTrue(sut.existsBySourceUrl(posting.sourceUrl))
+        assertFalse(sut.existsBySourceUrl(URI.create("https://example.com/jobs/other")))
+    }
 
-    assertTrue(sut.existsBySourceUrl(posting.sourceUrl))
-    assertFalse(sut.existsBySourceUrl(URI.create("https://example.com/jobs/other")))
-  }
+    @Test
+    fun `rejects a second posting with the same source url`() {
+        val url = faker.internet().url()
+        sut.save(posting(url))
+        flushAndClear()
 
-  @Test
-  fun `rejects a second posting with the same source url`() {
-    val url = faker.internet().url()
-    sut.save(posting(url))
-    flushAndClear()
+        sut.save(posting(url = url, externalId = "job-2"))
 
-    sut.save(posting(url = url, externalId = "job-2"))
+        assertFailsWith<ConstraintViolationException> { entityManager.flush() }
+    }
 
-    assertFailsWith<ConstraintViolationException> { entityManager.flush() }
-  }
+    @Test
+    fun `database rejects a second row with the same external source and external id`() {
+        val externalId = faker.lorem().characters()
+        sut.save(posting(externalId = externalId))
+        flushAndClear()
 
-  @Test
-  fun `database rejects a second row with the same external source and external id`() {
-    val externalId = faker.lorem().characters()
-    sut.save(posting(externalId = externalId))
-    flushAndClear()
+        entityManager.persist(JobPostingEntityMapper.toEntity(posting(url = "https://example.com/jobs/2", externalId = externalId)))
 
-    entityManager.persist(JobPostingEntityMapper.toEntity(posting(url = "https://example.com/jobs/2", externalId = externalId)))
+        assertFailsWith<ConstraintViolationException> { entityManager.flush() }
+    }
 
-    assertFailsWith<ConstraintViolationException> { entityManager.flush() }
-  }
+    @Test
+    fun `updates the stored posting when the external source and external id match`() {
+        val externalId = faker.lorem().characters()
+        val stored = posting(externalId = externalId)
+        sut.save(stored)
+        flushAndClear()
 
-  @Test
-  fun `updates the stored posting when the external source and external id match`() {
-    val externalId = faker.lorem().characters()
-    val stored = posting(externalId =externalId)
-    sut.save(stored)
-    flushAndClear()
+        val imported =
+            posting(url = "https://example.com/jobs/2", externalId = externalId).copy(
+                title = "Mentat",
+                skills = setOf("computation"),
+                status = PostingStatus.OPEN,
+                discoveredAt = Instant.parse("2026-11-01T10:00:00Z"),
+            )
+        sut.save(imported)
+        flushAndClear()
 
-    val imported = posting(url = "https://example.com/jobs/2", externalId = externalId).copy(
-      title = "Mentat",
-      skills = setOf("computation"),
-      status = PostingStatus.OPEN,
-      discoveredAt = Instant.parse("2026-11-01T10:00:00Z"),
-    )
-    sut.save(imported)
-    flushAndClear()
+        val expected = imported.copy(id = stored.id, status = stored.status, discoveredAt = stored.discoveredAt)
+        assertEquals(expected, sut.findById(stored.id))
+        assertNull(sut.findById(imported.id))
+    }
 
-    val expected = imported.copy(id = stored.id, status = stored.status, discoveredAt = stored.discoveredAt)
-    assertEquals(expected, sut.findById(stored.id))
-    assertNull(sut.findById(imported.id))
-  }
+    @Test
+    fun `saving a posting under its own id persists its status change`() {
+        val stored = posting().copy(status = PostingStatus.OPEN)
+        sut.save(stored)
+        flushAndClear()
 
-  @Test
-  fun `saving a posting under its own id persists its status change`() {
-    val stored = posting().copy(status = PostingStatus.OPEN)
-    sut.save(stored)
-    flushAndClear()
+        sut.save(stored.markApplied())
+        flushAndClear()
 
-    sut.save(stored.markApplied())
-    flushAndClear()
+        assertEquals(PostingStatus.APPLIED, sut.findById(stored.id)?.status)
+    }
 
-    assertEquals(PostingStatus.APPLIED, sut.findById(stored.id)?.status)
-  }
+    @Test
+    fun `stores postings without an external id as separate postings`() {
+        val first = posting(externalId = null)
+        val second = posting(url = "https://example.com/jobs/2", externalId = null)
 
-  @Test
-  fun `stores postings without an external id as separate postings`() {
-    val first = posting(externalId = null)
-    val second = posting(url = "https://example.com/jobs/2", externalId = null)
+        sut.save(first)
+        sut.save(second)
+        flushAndClear()
 
-    sut.save(first)
-    sut.save(second)
-    flushAndClear()
+        assertEquals(first, sut.findById(first.id))
+        assertEquals(second, sut.findById(second.id))
+    }
 
-    assertEquals(first, sut.findById(first.id))
-    assertEquals(second, sut.findById(second.id))
-  }
+    @Test
+    fun `allows the same external id from a different external source`() {
+        sut.save(posting())
+        flushAndClear()
 
-  @Test
-  fun `allows the same external id from a different external source`() {
-    sut.save(posting())
-    flushAndClear()
+        sut.save(posting(url = "https://example.com/jobs/2", externalSourceId = "other"))
 
-    sut.save(posting(url = "https://example.com/jobs/2", externalSourceId = "other"))
+        entityManager.flush()
+    }
 
-    entityManager.flush()
-  }
+    @Test
+    fun `returns paged response when getting multiple JobPostings`() {
+        sut.save(posting())
+        sut.save(posting())
+        sut.save(posting())
+        flushAndClear()
 
-  @Test
-  fun `returns paged response when getting multiple JobPostings`() {
-    sut.save(posting())
-    sut.save(posting())
-    sut.save(posting())
-    flushAndClear()
-
-    assertEquals(3, sut.findAll(JobPostingFilter(), null).totalElements)
-    assertEquals(3, sut.findAll(JobPostingFilter(), null).elements.count())
-  }
-
+        assertEquals(3, sut.findAll(JobPostingFilter(), null).totalElements)
+        assertEquals(3, sut.findAll(JobPostingFilter(), null).elements.count())
+    }
 }

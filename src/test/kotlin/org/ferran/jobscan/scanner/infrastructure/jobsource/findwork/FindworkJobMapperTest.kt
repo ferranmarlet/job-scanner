@@ -13,36 +13,36 @@ import kotlin.random.Random
 @Tag("unit")
 class FindworkJobMapperTest {
 
-  @Test
-  fun  `should map response to JobPosting domain entity`() {
-    val faker = Faker()
+    @Test
+    fun  `should map response to JobPosting domain entity`() {
+        val faker = Faker()
 
-    val findworkJobDto = FindworkJobDto(
-        Random.nextLong(1, 1000).toString(),
-        faker.lorem().word(),
-        faker.company().name(),
-        faker.address().city(),
-        faker.bool().bool(),
-        faker.internet().url(),
-        List(2, { faker.lorem().word() }),
-        faker.timeAndDate().past(30, TimeUnit.DAYS),
-      )
-    val jobPosting = findworkJobDto.let(FindworkJobMapper::toDomain)
+        val findworkJobDto = FindworkJobDto(
+            Random.nextLong(1, 1000).toString(),
+            faker.lorem().word(),
+            faker.company().name(),
+            faker.address().city(),
+            faker.bool().bool(),
+            faker.internet().url(),
+            List(2, { faker.lorem().word() }),
+            faker.timeAndDate().past(30, TimeUnit.DAYS),
+        )
+        val jobPosting = findworkJobDto.let(FindworkJobMapper::toDomain)
 
-    val expected = JobPosting(
-      externalId = findworkJobDto.id,
-      externalSourceId = FindworkJobSourceRepository.EXTERNAL_JOB_SOURCE_ID,
-      title = findworkJobDto.role!!,
-      company = findworkJobDto.companyName,
-      location = findworkJobDto.location,
-      workMode = if (findworkJobDto.remote) WorkMode.REMOTE else WorkMode.ONSITE,
-      seniority = null,
-      skills = findworkJobDto.keywords.toSet(),
-      sourceUrl = URI.create(findworkJobDto.url!!),
-    )
-    assertThat(jobPosting)
-      .usingRecursiveComparison()
-      .ignoringFields("id", "discoveredAt")
-      .isEqualTo(expected)
-  }
+        val expected = JobPosting(
+            externalId = findworkJobDto.id,
+            externalSourceId = FindworkJobSourceRepository.EXTERNAL_JOB_SOURCE_ID,
+            title = findworkJobDto.role!!,
+            company = findworkJobDto.companyName,
+            location = findworkJobDto.location,
+            workMode = if (findworkJobDto.remote) WorkMode.REMOTE else WorkMode.ONSITE,
+            seniority = null,
+            skills = findworkJobDto.keywords.toSet(),
+            sourceUrl = URI.create(findworkJobDto.url!!),
+        )
+        assertThat(jobPosting)
+            .usingRecursiveComparison()
+            .ignoringFields("id", "discoveredAt")
+            .isEqualTo(expected)
+    }
 }

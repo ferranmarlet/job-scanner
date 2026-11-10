@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Import
 @Import(PostgresTestConfiguration::class)
 class JobscanApplicationTests {
 
-	@Test
-	fun contextLoads() {
-	}
+    @Test
+    fun contextLoads() {
+    }
 
 }

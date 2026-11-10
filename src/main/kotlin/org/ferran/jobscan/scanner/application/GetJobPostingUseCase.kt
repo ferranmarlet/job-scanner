@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class GetJobPostingUseCase(
-  private val jobPostingRepository: JobPostingRepository
+    private val jobPostingRepository: JobPostingRepository
 ) {
-  fun execute(id: JobPostingId): JobPosting =
-    jobPostingRepository.findById(id) ?: throw JobPostingNotFoundError(id)
+    fun execute(id: JobPostingId): JobPosting =
+        jobPostingRepository.findById(id) ?: throw JobPostingNotFoundError(id)
 }

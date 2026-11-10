@@ -18,45 +18,45 @@ import kotlin.test.assertEquals
 @Tag("unit")
 class GetJobPostingsUseCaseTest {
 
-  private val jobPostingRepository: JobPostingRepository = mock()
+    private val jobPostingRepository: JobPostingRepository = mock()
 
-  private val sut = GetJobPostingsUseCase(jobPostingRepository)
+    private val sut = GetJobPostingsUseCase(jobPostingRepository)
 
-  @Test
-  fun `returns an empty list when there are no JobPostings`() {
-    `when`(jobPostingRepository.findAll(
-      JobPostingFilter(),
-      0)).thenReturn(PagedResponse<JobPosting>(listOf(), 0, 0, 0))
+    @Test
+    fun `returns an empty list when there are no JobPostings`() {
+        `when`(jobPostingRepository.findAll(
+            JobPostingFilter(),
+            0)).thenReturn(PagedResponse<JobPosting>(listOf(), 0, 0, 0))
 
-    assertEquals(0, sut.execute(PagedJobPostingRequest(JobPostingFilter(), 0)).elements.size)
-  }
+        assertEquals(0, sut.execute(PagedJobPostingRequest(JobPostingFilter(), 0)).elements.size)
+    }
 
-  @Test
-  fun `returns JobPostings`() {
+    @Test
+    fun `returns JobPostings`() {
 
-    val expected = PagedResponse<JobPosting>(listOf(
-      aJobPosting(),
-      aJobPosting()
-    ),
-      0,
-      1,
-      2,
-    )
-    `when`(jobPostingRepository.findAll(JobPostingFilter(), 0)).thenReturn(expected)
+        val expected = PagedResponse<JobPosting>(listOf(
+            aJobPosting(),
+            aJobPosting()
+        ),
+            0,
+            1,
+            2,
+        )
+        `when`(jobPostingRepository.findAll(JobPostingFilter(), 0)).thenReturn(expected)
 
-    assertEquals(expected, sut.execute(PagedJobPostingRequest(JobPostingFilter(),0)))
-  }
+        assertEquals(expected, sut.execute(PagedJobPostingRequest(JobPostingFilter(),0)))
+    }
 
-  private fun aJobPosting() =
-    JobPosting(
-      id = JobPostingId.new(),
-      externalId = null,
-      externalSourceId = "unknown",
-      title = "Untitled",
-      company = "Unknown",
-      location = "",
-      workMode = WorkMode.ONSITE,
-      seniority = Seniority.MID,
-      sourceUrl = URI.create("about:blank"),
-    )
+    private fun aJobPosting() =
+        JobPosting(
+            id = JobPostingId.new(),
+            externalId = null,
+            externalSourceId = "unknown",
+            title = "Untitled",
+            company = "Unknown",
+            location = "",
+            workMode = WorkMode.ONSITE,
+            seniority = Seniority.MID,
+            sourceUrl = URI.create("about:blank"),
+        )
 }

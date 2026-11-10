@@ -22,66 +22,66 @@ import java.util.UUID
 
 @Entity
 @Table(
-  name = "job_posting",
-  uniqueConstraints = [
-    UniqueConstraint(
-      name = "uq_job_posting_external_source_id_external_id",
-      columnNames = ["external_source_id", "external_id"],
-    ),
-  ],
+    name = "job_posting",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "uq_job_posting_external_source_id_external_id",
+            columnNames = ["external_source_id", "external_id"],
+        ),
+    ],
 )
 class JobPostingEntity(
-  @Id
-  var id: UUID,
+    @Id
+    var id: UUID,
 
-  @Column(nullable = true)
-  var externalId: String?,
+    @Column(nullable = true)
+    var externalId: String?,
   
-  @Column(nullable = false)
-  var externalSourceId: String,
+    @Column(nullable = false)
+    var externalSourceId: String,
 
-  @Column(nullable = false)
-  var title: String,
+    @Column(nullable = false)
+    var title: String,
 
-  var company: String?,
+    var company: String?,
 
-  var location: String?,
+    var location: String?,
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "work_mode")
-  var workMode: WorkMode?,
+    @Enumerated(EnumType.STRING)
+    @Column(name = "work_mode")
+    var workMode: WorkMode?,
 
-  @Enumerated(EnumType.STRING)
-  var seniority: Seniority?,
+    @Enumerated(EnumType.STRING)
+    var seniority: Seniority?,
 
-  @Embedded
-  var salary: SalaryEmbeddable?,
+    @Embedded
+    var salary: SalaryEmbeddable?,
 
-  @ElementCollection
-  @CollectionTable(name = "job_posting_skill", joinColumns = [JoinColumn(name = "job_posting_id")])
-  @Column(name = "skill", nullable = false)
-  var skills: MutableSet<String>,
+    @ElementCollection
+    @CollectionTable(name = "job_posting_skill", joinColumns = [JoinColumn(name = "job_posting_id")])
+    @Column(name = "skill", nullable = false)
+    var skills: MutableSet<String>,
 
-  @Column(name = "source_url", nullable = false, unique = true)
-  var sourceUrl: String,
+    @Column(name = "source_url", nullable = false, unique = true)
+    var sourceUrl: String,
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  var status: PostingStatus,
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var status: PostingStatus,
 
-  @Column(name = "discovered_at", nullable = false)
-  var discoveredAt: Instant,
+    @Column(name = "discovered_at", nullable = false)
+    var discoveredAt: Instant,
 )
 
 @Embeddable
 class SalaryEmbeddable(
-  @Column(name = "salary_min")
-  var min: Int,
+    @Column(name = "salary_min")
+    var min: Int,
 
-  @Column(name = "salary_max")
-  var max: Int,
+    @Column(name = "salary_max")
+    var max: Int,
 
-  @JdbcTypeCode(SqlTypes.CHAR)
-  @Column(name = "salary_currency", length = 3)
-  var currency: String,
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "salary_currency", length = 3)
+    var currency: String,
 )

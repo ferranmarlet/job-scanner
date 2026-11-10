@@ -16,19 +16,19 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/job-postings")
 class GetJobPostingsController(private val getJobPostingsUseCase: GetJobPostingsUseCase) {
 
-  @GetMapping
-  fun get(
-    @RequestParam externalSourceId: String?,
-    @RequestParam workMode: WorkMode?,
-    @RequestParam status: PostingStatus?,
-    @RequestParam page: Int?
-  ): PagedResponse<JobPosting> {
-    val pagedJobPostingRequest = PagedJobPostingRequest(
-      JobPostingFilter(
-        externalSourceId, workMode, status,
-      ),
-      page ?: 0)
+    @GetMapping
+    fun get(
+        @RequestParam externalSourceId: String?,
+        @RequestParam workMode: WorkMode?,
+        @RequestParam status: PostingStatus?,
+        @RequestParam page: Int?
+    ): PagedResponse<JobPosting> {
+        val pagedJobPostingRequest = PagedJobPostingRequest(
+            JobPostingFilter(
+                externalSourceId, workMode, status,
+            ),
+            page ?: 0)
 
-    return getJobPostingsUseCase.execute(pagedJobPostingRequest)
-  }
+        return getJobPostingsUseCase.execute(pagedJobPostingRequest)
+    }
 }

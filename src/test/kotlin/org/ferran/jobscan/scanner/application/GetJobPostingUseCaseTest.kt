@@ -15,36 +15,36 @@ import kotlin.test.assertFailsWith
 @Tag("unit")
 class GetJobPostingUseCaseTest {
 
-  private val jobPostingRepository: JobPostingRepository = mock()
+    private val jobPostingRepository: JobPostingRepository = mock()
 
-  private val sut = GetJobPostingUseCase(jobPostingRepository)
+    private val sut = GetJobPostingUseCase(jobPostingRepository)
 
-  private val id = JobPostingId.new()
+    private val id = JobPostingId.new()
 
-  @Test
-  fun `returns the job posting when it exists`() {
-    val posting = JobPosting(
-      id = id,
-      externalId = "job-1",
-      externalSourceId = "findwork",
-      title = "Guild Navigator",
-      company = "Spacing Guild",
-      location = "Arrakis",
-      workMode = null,
-      seniority = null,
-      sourceUrl = URI.create("https://example.com/jobs/1"),
-    )
-    `when`(jobPostingRepository.findById(id)).thenReturn(posting)
+    @Test
+    fun `returns the job posting when it exists`() {
+        val posting = JobPosting(
+            id = id,
+            externalId = "job-1",
+            externalSourceId = "findwork",
+            title = "Guild Navigator",
+            company = "Spacing Guild",
+            location = "Arrakis",
+            workMode = null,
+            seniority = null,
+            sourceUrl = URI.create("https://example.com/jobs/1"),
+        )
+        `when`(jobPostingRepository.findById(id)).thenReturn(posting)
 
-    assertEquals(posting, sut.execute(id))
-  }
+        assertEquals(posting, sut.execute(id))
+    }
 
-  @Test
-  fun `throws JobPostingNotFoundError when the job posting does not exist`() {
-    `when`(jobPostingRepository.findById(id)).thenReturn(null)
+    @Test
+    fun `throws JobPostingNotFoundError when the job posting does not exist`() {
+        `when`(jobPostingRepository.findById(id)).thenReturn(null)
 
-    val error = assertFailsWith<JobPostingNotFoundError> { sut.execute(id) }
+        val error = assertFailsWith<JobPostingNotFoundError> { sut.execute(id) }
 
-    assertEquals("Job posting ${id.value} not found", error.message)
-  }
+        assertEquals("Job posting ${id.value} not found", error.message)
+    }
 }

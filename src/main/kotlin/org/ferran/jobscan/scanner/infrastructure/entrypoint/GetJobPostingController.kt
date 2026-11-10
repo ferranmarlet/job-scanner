@@ -13,6 +13,7 @@ import java.util.UUID
 @RequestMapping("/job-postings")
 class GetJobPostingController(private val getJobPosting: GetJobPostingUseCase) {
 
-	@GetMapping("/{id}")
-	fun get(@PathVariable id: UUID): JobPosting = getJobPosting.execute(JobPostingId(id))
+    @GetMapping("/{id}")
+    fun get(@PathVariable id: UUID): JobPosting =
+        getJobPosting.execute(JobPostingId(id))
 }

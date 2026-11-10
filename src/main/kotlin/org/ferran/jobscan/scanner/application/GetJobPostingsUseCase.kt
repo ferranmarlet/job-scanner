@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class GetJobPostingsUseCase(
-  private val jobPostingRepository: JobPostingRepository
+    private val jobPostingRepository: JobPostingRepository
 ) {
-  fun execute(request: PagedJobPostingRequest): PagedResponse<JobPosting> =
-    jobPostingRepository.findAll(request.filter, request.page)
+    fun execute(request: PagedJobPostingRequest): PagedResponse<JobPosting> =
+        jobPostingRepository.findAll(request.filter, request.page)
 }
