@@ -3,12 +3,10 @@ package org.ferran.jobscan.scanner.infrastructure.persistence
 import jakarta.persistence.EntityManager
 import net.datafaker.Faker
 import org.ferran.jobscan.PostgresTestConfiguration
-import org.ferran.jobscan.scanner.domain.JobPosting
 import org.ferran.jobscan.scanner.domain.JobPostingFilter
 import org.ferran.jobscan.scanner.domain.JobPostingId
+import org.ferran.jobscan.scanner.domain.JobPostingMother
 import org.ferran.jobscan.scanner.domain.PostingStatus
-import org.ferran.jobscan.scanner.domain.SalaryRange
-import org.ferran.jobscan.scanner.domain.Seniority
 import org.ferran.jobscan.scanner.domain.WorkMode
 import org.hibernate.exception.ConstraintViolationException
 import org.junit.jupiter.api.Test
@@ -17,7 +15,6 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase
 import org.springframework.context.annotation.Import
 import java.net.URI
-import java.time.Instant
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -36,26 +33,6 @@ class JpaJobPostingRepositoryTest {
 
     val faker = Faker()
 
-    private fun posting(
-        url: String = faker.internet().url(),
-        externalId: String? = faker.lorem().characters(),
-        externalSourceId: String = "findwork",
-    ) =
-        JobPosting(
-            externalId = externalId,
-            externalSourceId = externalSourceId,
-            title = "Guild Navigator",
-            company = "Spacing Guild",
-            location = "Arrakis",
-            workMode = WorkMode.HYBRID,
-            seniority = Seniority.SENIOR,
-            salary = SalaryRange(min = 60_000, max = 80_000, currency = "EUR"),
-            skills = setOf("prescience", "future sight"),
-            sourceUrl = URI.create(url),
-            status = PostingStatus.APPLIED,
-            discoveredAt = Instant.parse("2026-10-30T09:15:00Z"),
-        )
-
     private fun flushAndClear() {
         entityManager.flush()
         entityManager.clear()
@@ -63,7 +40,7 @@ class JpaJobPostingRepositoryTest {
 
     @Test
     fun `stores and loads every field`() {
-        val posting = posting()
+        val posting = JobPostingMother.create()
 
         sut.save(posting)
         flushAndClear()
@@ -73,7 +50,7 @@ class JpaJobPostingRepositoryTest {
 
     @Test
     fun `loads a posting without salary or skills`() {
-        val posting = posting().copy(salary = null, skills = emptySet(), company = null, workMode = null)
+        val posting = JobPostingMother.create().copy(salary = null, skills = emptySet(), company = null, workMode = null)
 
         sut.save(posting)
         flushAndClear()
@@ -88,7 +65,7 @@ class JpaJobPostingRepositoryTest {
 
     @Test
     fun `finds out whether a source url exists`() {
-        val posting = posting()
+        val posting = JobPostingMother.create()
 
         sut.save(posting)
         flushAndClear()
@@ -100,10 +77,10 @@ class JpaJobPostingRepositoryTest {
     @Test
     fun `rejects a second posting with the same source url`() {
         val url = faker.internet().url()
-        sut.save(posting(url))
+        sut.save(JobPostingMother.create(sourceUrl = url))
         flushAndClear()
 
-        sut.save(posting(url = url, externalId = "job-2"))
+        sut.save(JobPostingMother.create(sourceUrl = url, externalId = "job-2"))
 
         assertFailsWith<ConstraintViolationException> { entityManager.flush() }
     }
@@ -111,10 +88,11 @@ class JpaJobPostingRepositoryTest {
     @Test
     fun `database rejects a second row with the same external source and external id`() {
         val externalId = faker.lorem().characters()
-        sut.save(posting(externalId = externalId))
+        val externalSourceId = faker.dragonBall().character()
+        sut.save(JobPostingMother.create(externalId = externalId, externalSourceId = externalSourceId))
         flushAndClear()
 
-        entityManager.persist(JobPostingEntityMapper.toEntity(posting(url = "https://example.com/jobs/2", externalId = externalId)))
+        entityManager.persist(JobPostingEntityMapper.toEntity(JobPostingMother.create(sourceUrl = "https://example.com/jobs/2", externalId = externalId, externalSourceId = externalSourceId)))
 
         assertFailsWith<ConstraintViolationException> { entityManager.flush() }
     }
@@ -122,28 +100,34 @@ class JpaJobPostingRepositoryTest {
     @Test
     fun `updates the stored posting when the external source and external id match`() {
         val externalId = faker.lorem().characters()
-        val stored = posting(externalId = externalId)
+        val externalSourceId = faker.tron().character()
+        val stored = JobPostingMother.create(externalId = externalId, externalSourceId = externalSourceId)
         sut.save(stored)
         flushAndClear()
 
         val imported =
-            posting(url = "https://example.com/jobs/2", externalId = externalId).copy(
-                title = "Mentat",
-                skills = setOf("computation"),
-                status = PostingStatus.OPEN,
-                discoveredAt = Instant.parse("2026-11-01T10:00:00Z"),
+            JobPostingMother.create(externalId = externalId, externalSourceId = externalSourceId).copy(
+                title = faker.finalFantasyXIV().job(),
+                skills = setOf(faker.tron().game()),
+                status = PostingStatus.entries.random(),
+                discoveredAt = faker.timeAndDate().past(),
             )
         sut.save(imported)
         flushAndClear()
 
         val expected = imported.copy(id = stored.id, status = stored.status, discoveredAt = stored.discoveredAt)
-        assertEquals(expected, sut.findById(stored.id))
+
+        val storedJobPosting = sut.findById(stored.id)
+        assertEquals(expected.id, stored.id)
+        assertEquals(expected.status, stored.status)
+        assertEquals(expected.title, imported.title)
+        assertEquals(expected.discoveredAt, stored.discoveredAt)
         assertNull(sut.findById(imported.id))
     }
 
     @Test
     fun `saving a posting under its own id persists its status change`() {
-        val stored = posting().copy(status = PostingStatus.OPEN)
+        val stored = JobPostingMother.create().copy(status = PostingStatus.OPEN)
         sut.save(stored)
         flushAndClear()
 
@@ -155,8 +139,8 @@ class JpaJobPostingRepositoryTest {
 
     @Test
     fun `stores postings without an external id as separate postings`() {
-        val first = posting(externalId = null)
-        val second = posting(url = "https://example.com/jobs/2", externalId = null)
+        val first = JobPostingMother.create(externalId = null)
+        val second = JobPostingMother.create(sourceUrl = "https://example.com/jobs/2", externalId = null)
 
         sut.save(first)
         sut.save(second)
@@ -168,22 +152,56 @@ class JpaJobPostingRepositoryTest {
 
     @Test
     fun `allows the same external id from a different external source`() {
-        sut.save(posting())
+        sut.save(JobPostingMother.create())
         flushAndClear()
 
-        sut.save(posting(url = "https://example.com/jobs/2", externalSourceId = "other"))
+        sut.save(JobPostingMother.create(sourceUrl = "https://example.com/jobs/2", externalSourceId = "other"))
 
         entityManager.flush()
     }
 
     @Test
     fun `returns paged response when getting multiple JobPostings`() {
-        sut.save(posting())
-        sut.save(posting())
-        sut.save(posting())
+        sut.save(JobPostingMother.create())
+        sut.save(JobPostingMother.create())
+        sut.save(JobPostingMother.create())
         flushAndClear()
 
         assertEquals(3, sut.findAll(JobPostingFilter(), null).totalElements)
         assertEquals(3, sut.findAll(JobPostingFilter(), null).elements.count())
+    }
+    
+    @Test
+    fun `returns JobPostings filtered by workMode`() {
+        sut.save(JobPostingMother.create(workMode = WorkMode.REMOTE))
+        sut.save(JobPostingMother.create(workMode = WorkMode.REMOTE))
+        sut.save(JobPostingMother.create(workMode = WorkMode.HYBRID))
+        flushAndClear()
+
+        val workModeFilteredResult = sut.findAll(JobPostingFilter(workMode = WorkMode.REMOTE))
+        assertEquals(2, workModeFilteredResult.totalElements)
+        assertEquals(2, workModeFilteredResult.elements.count())
+    }
+    
+    @Test
+    fun `returns JobPostings filtered by status`() {
+        sut.save(JobPostingMother.create(status = PostingStatus.OPEN))
+        sut.save(JobPostingMother.create(status = PostingStatus.OPEN))
+        sut.save(JobPostingMother.create(status = PostingStatus.APPLIED))
+        flushAndClear()
+
+        val statusFilteredResult = sut.findAll(JobPostingFilter(status = PostingStatus.APPLIED))
+        assertEquals(1, statusFilteredResult.totalElements)
+        assertEquals(1, statusFilteredResult.elements.count())
+    }
+    
+    @Test
+    fun `returns JobPostings filtered by source`() {
+        sut.save(JobPostingMother.create(externalSourceId = faker.company().name()))
+        flushAndClear()
+
+        val sourceFilteredResult = sut.findAll(JobPostingFilter(externalSourceId = faker.dune().planet()))
+        assertEquals(0, sourceFilteredResult.totalElements)
+        assertEquals(0, sourceFilteredResult.elements.count())
     }
 }

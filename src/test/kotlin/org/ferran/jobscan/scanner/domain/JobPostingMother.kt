@@ -2,6 +2,7 @@ package org.ferran.jobscan.scanner.domain
 
 import net.datafaker.Faker
 import java.net.URI
+import java.time.temporal.ChronoUnit
 
 val faker = Faker()
 
@@ -17,6 +18,7 @@ class JobPostingMother {
             workMode: WorkMode? = WorkMode.entries.random(),
             seniority: Seniority? = Seniority.entries.random(),
             sourceUrl: String = faker.internet().url(),
+            status: PostingStatus = PostingStatus.entries.random(),
         ) = 
             JobPosting(
                 id = id,
@@ -28,6 +30,8 @@ class JobPostingMother {
                 workMode = workMode,
                 seniority = seniority,
                 sourceUrl = URI.create(sourceUrl),
+                discoveredAt = faker.timeAndDate().past().truncatedTo(ChronoUnit.SECONDS),
+                status = status,
             )
     }
 }

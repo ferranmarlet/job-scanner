@@ -16,5 +16,5 @@ interface JobPostingRepository {
 
     fun existsBySourceUrl(url: URI): Boolean
 
-    fun findAll(filter: JobPostingFilter, page: Int?): PagedResponse<JobPosting>
+    fun findAll(filter: JobPostingFilter, page: Int? = 0): PagedResponse<JobPosting>
 }
