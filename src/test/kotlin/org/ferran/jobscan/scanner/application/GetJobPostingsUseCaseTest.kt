@@ -4,6 +4,8 @@ import org.ferran.jobscan.scanner.domain.JobPosting
 import org.ferran.jobscan.scanner.domain.JobPostingFilter
 import org.ferran.jobscan.scanner.domain.JobPostingId
 import org.ferran.jobscan.scanner.domain.JobPostingRepository
+import org.ferran.jobscan.scanner.domain.PagedJobPostingRequest
+import org.ferran.jobscan.scanner.domain.PagedResponse
 import org.ferran.jobscan.scanner.domain.Seniority
 import org.ferran.jobscan.scanner.domain.WorkMode
 import org.junit.jupiter.api.Tag
@@ -22,21 +24,27 @@ class GetJobPostingsUseCaseTest {
 
   @Test
   fun `returns an empty list when there are no JobPostings`() {
-    `when`(jobPostingRepository.findAll(JobPostingFilter())).thenReturn(listOf())
+    `when`(jobPostingRepository.findAll(
+      JobPostingFilter(),
+      0)).thenReturn(PagedResponse<JobPosting>(listOf(), 0, 0, 0))
 
-    assert(sut.execute(null, null, null).isEmpty())
+    assertEquals(0, sut.execute(PagedJobPostingRequest(JobPostingFilter(), 0)).elements.size)
   }
 
   @Test
   fun `returns JobPostings`() {
 
-    val expected: List<JobPosting> = listOf(
+    val expected = PagedResponse<JobPosting>(listOf(
       aJobPosting(),
       aJobPosting()
+    ),
+      0,
+      1,
+      2,
     )
-    `when`(jobPostingRepository.findAll(JobPostingFilter())).thenReturn(expected)
+    `when`(jobPostingRepository.findAll(JobPostingFilter(), 0)).thenReturn(expected)
 
-    assertEquals(expected, sut.execute(null, null, null))
+    assertEquals(expected, sut.execute(PagedJobPostingRequest(JobPostingFilter(),0)))
   }
 
   private fun aJobPosting() =

@@ -1,8 +1,10 @@
 package org.ferran.jobscan.scanner.infrastructure.persistence
 
 import jakarta.persistence.EntityManager
+import net.datafaker.Faker
 import org.ferran.jobscan.PostgresTestConfiguration
 import org.ferran.jobscan.scanner.domain.JobPosting
+import org.ferran.jobscan.scanner.domain.JobPostingFilter
 import org.ferran.jobscan.scanner.domain.JobPostingId
 import org.ferran.jobscan.scanner.domain.PostingStatus
 import org.ferran.jobscan.scanner.domain.SalaryRange
@@ -173,4 +175,16 @@ class JpaJobPostingRepositoryTest {
 
     entityManager.flush()
   }
+
+  @Test
+  fun `returns paged response when getting multiple JobPostings`() {
+    sut.save(posting())
+    sut.save(posting())
+    sut.save(posting())
+    flushAndClear()
+
+    assertEquals(3, sut.findAll(JobPostingFilter(), null).totalElements)
+    assertEquals(3, sut.findAll(JobPostingFilter(), null).elements.count())
+  }
+
 }

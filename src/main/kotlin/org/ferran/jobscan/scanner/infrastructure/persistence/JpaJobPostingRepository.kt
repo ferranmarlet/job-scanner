@@ -59,10 +59,10 @@ class JpaJobPostingRepository(
     val result = jpaRepository.findAll(spec, pageable)
 
     return PagedResponse(
-      items = result.content.map(JobPostingEntityMapper::toDomain),
+      elements = result.content.map(JobPostingEntityMapper::toDomain),
       page = result.number,
       totalPages = result.totalPages,
-      totalItems = result.totalElements.toInt(),
+      totalElements = result.totalElements.toInt(),
     )
   }
 
