@@ -48,8 +48,17 @@ data class JobPosting(
         if (wanted.isEmpty()) 0.0
         else skills.count { it.lowercase() in wanted.map(String::lowercase) }.toDouble() / wanted.size
 
-    fun markApplied(): JobPosting {
-        check(status == PostingStatus.OPEN) { "Can only apply to an open posting, was $status" }
-        return copy(status = PostingStatus.APPLIED)
+    fun markApplied(): JobPosting = changeStatus(PostingStatus.APPLIED)
+
+    fun changeStatus(newStatus: PostingStatus): JobPosting {
+        if (!canTransitionTo(newStatus)) throw InvalidStatusTransitionError(status, newStatus)
+        return copy(status = newStatus)
     }
+
+    private fun canTransitionTo(target: PostingStatus): Boolean =
+        when (status) {
+            PostingStatus.OPEN -> target in setOf(PostingStatus.APPLIED, PostingStatus.CLOSED)
+            PostingStatus.APPLIED -> target in setOf(PostingStatus.REJECTED, PostingStatus.CLOSED)
+            PostingStatus.REJECTED, PostingStatus.CLOSED -> false
+        }
 }
