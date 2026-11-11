@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 
-@RestControllerAdvice(assignableTypes = [GetJobPostingController::class])
+@RestControllerAdvice(assignableTypes = [GetJobPostingController::class, PatchJobPostingController::class])
 class JobPostingExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
