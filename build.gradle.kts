@@ -28,6 +28,8 @@ dependencies {
     implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
+    // Validates Cognito access tokens (JWT) sent as Bearer tokens
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
     // IAM authentication to RDS, enabled by the jdbc:aws-wrapper URL set in Terraform
@@ -35,6 +37,7 @@ dependencies {
     runtimeOnly("software.amazon.awssdk:rds:2.57.9")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-postgresql")

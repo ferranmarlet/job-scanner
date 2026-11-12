@@ -49,3 +49,15 @@ variable "findwork_api_key_secret_arn" {
   description = "ARN of the Secrets Manager secret holding the Findwork API key"
   type        = string
 }
+
+# Set from the backoffice stack's outputs. They can't be read from its state,
+# because the backoffice stack already reads this stack's state.
+variable "cognito_issuer_uri" {
+  description = "Issuer of the Cognito access tokens the API accepts (backoffice output cognito_issuer_uri)"
+  type        = string
+}
+
+variable "cognito_spa_client_id" {
+  description = "Cognito app client the access tokens must be issued to (backoffice output cognito_spa_client_id)"
+  type        = string
+}

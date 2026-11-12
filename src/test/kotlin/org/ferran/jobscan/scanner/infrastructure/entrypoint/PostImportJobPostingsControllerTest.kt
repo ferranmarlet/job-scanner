@@ -5,12 +5,15 @@ import org.ferran.jobscan.scanner.application.ImportJobPostingsCommand
 import org.ferran.jobscan.scanner.application.ImportJobPostingsCommandHandler
 import org.ferran.jobscan.scanner.domain.JobSearchCriteria
 import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.security.SecurityConfig
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -18,6 +21,8 @@ import org.springframework.test.web.servlet.post
 import tools.jackson.databind.json.JsonMapper
 
 @WebMvcTest(PostImportJobPostingsController::class)
+@Import(SecurityConfig::class)
+@WithMockUser(roles = [SecurityConfig.ADMIN_ROLE])
 class PostImportJobPostingsControllerTest {
 
     @Autowired
