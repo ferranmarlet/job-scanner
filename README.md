@@ -81,6 +81,19 @@ The API is briefly unavailable during the deployment, because the old task stops
   terraform -chdir=terraform apply -var-file=dev.tfvars
   ```
 
+### Stopping the environment to save costs
+
+`scripts/stop_environment.sh` stops the ECS task, terminates its EC2 instance and stops the RDS instance. `scripts/start_environment.sh` starts them again, then moves the backoffice's Elastic IP to the new instance (it runs Terraform in `../jobscan-backoffice`; set `BACKOFFICE_DIR` if it's elsewhere). Starting takes about 10 minutes, mostly waiting for RDS.
+
+```sh
+scripts/stop_environment.sh
+scripts/start_environment.sh
+```
+
+- RDS storage and backups, the Elastic IP, ECR images and logs are still billed while stopped.
+- AWS starts a stopped RDS instance again after 7 days. Run the stop script again to stop it.
+- `terraform apply` on this stack sets the instance and task counts back to 1, which starts the app on a stopped database. Run the start script instead.
+
 ### Working with deployed code
 - To open a tunnel to the ECS instance:
 
