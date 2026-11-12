@@ -92,7 +92,7 @@ sudo dpkg -i /tmp/session-manager-plugin.deb
 session-manager-plugin --version
 ```
 
-  2. Open the tunnel:
+  2. Open the tunnel to the ECS:
 ```sh
 ASG=$(terraform -chdir=terraform output -raw asg_name)
 INSTANCE_ID=$(aws ec2 describe-instances --region eu-west-1 \
@@ -102,6 +102,39 @@ INSTANCE_ID=$(aws ec2 describe-instances --region eu-west-1 \
 aws ssm start-session --region eu-west-1 --target "$INSTANCE_ID" \
 --document-name AWS-StartPortForwardingSession \
 --parameters '{"portNumber":["8080"],"localPortNumber":["8080"]}'
+```
+
+### Connect to the production Database:
+
+To get the DB password:
+```sh
+ASG=$(terraform -chdir=terraform output -raw asg_name)
+INSTANCE_ID=$(aws ec2 describe-instances --region eu-west-1 \
+--filters "Name=tag:aws:autoscaling:groupName,Values=$ASG" "Name=instance-state-name,Values=running" \
+--query 'Reservations[0].Instances[0].InstanceId' --output text)
+
+SECRET_ARN=$(aws rds describe-db-instances --region eu-west-1 \
+    --query "DBInstances[?Endpoint.Address=='$RDS_HOST'].MasterUserSecret.SecretArn" --output text)
+  export PGPASSWORD=$(aws secretsmanager get-secret-value --region eu-west-1 \
+    --secret-id "$SECRET_ARN" --query SecretString --output text | jq -r .password)
+echo $PGPASSWORD
+```
+
+To open the tunnel to the Database:
+```sh
+RDS_HOST=$(terraform -chdir=terraform output -raw rds_endpoint | cut -d: -f1)
+echo "$RDS_HOST
+
+aws ssm start-session --region eu-west-1 --target i-08ca97b6ce4b6de01 \
+--document-name AWS-StartPortForwardingSessionToRemoteHost \
+--parameters "{\"host\":[\"$RDS_HOST\"],\"portNumber\":[\"5432\"],\"localPortNumber\":[\"5433\"]}"
+```
+
+Setup the connection with:
+```sh
+jdbc:postgresql://localhost:5433/jobscan
+user: admin_user
+password: {previously retrieved password}
 ```
 
 ### Applying terraform changes
