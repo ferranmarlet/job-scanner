@@ -1,11 +1,11 @@
 package org.ferran.jobscan.scanner.application
 
 import net.datafaker.Faker
-import org.ferran.jobscan.scanner.domain.ExternalJobSourceRepository
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.JobPostingRepository
-import org.ferran.jobscan.scanner.domain.JobSearchCriteria
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.ExternalJobSourceRepository
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingRepository
+import org.ferran.jobscan.scanner.domain.jobposting.JobSearchCriteria
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock

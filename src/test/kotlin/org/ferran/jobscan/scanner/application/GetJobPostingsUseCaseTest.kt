@@ -1,14 +1,14 @@
 package org.ferran.jobscan.scanner.application
 
 import net.datafaker.Faker
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.JobPostingFilter
-import org.ferran.jobscan.scanner.domain.JobPostingMother
-import org.ferran.jobscan.scanner.domain.JobPostingRepository
-import org.ferran.jobscan.scanner.domain.PagedJobPostingRequest
-import org.ferran.jobscan.scanner.domain.PagedResponse
-import org.ferran.jobscan.scanner.domain.PostingStatus
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingFilter
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingMother
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingRepository
+import org.ferran.jobscan.scanner.domain.jobposting.PagedJobPostingRequest
+import org.ferran.jobscan.scanner.domain.shared.PagedResponse
+import org.ferran.jobscan.scanner.domain.jobposting.PostingStatus
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock

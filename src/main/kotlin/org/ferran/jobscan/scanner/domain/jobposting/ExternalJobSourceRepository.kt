@@ -1,4 +1,4 @@
-package org.ferran.jobscan.scanner.domain
+package org.ferran.jobscan.scanner.domain.jobposting
 
 import java.time.Instant
 

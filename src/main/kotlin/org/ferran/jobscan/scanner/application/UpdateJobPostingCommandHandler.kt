@@ -1,10 +1,10 @@
 package org.ferran.jobscan.scanner.application
 
 import org.ferran.jobscan.scanner.application.error.JobPostingNotFoundError
-import org.ferran.jobscan.scanner.domain.InvalidStatusTransitionError
-import org.ferran.jobscan.scanner.domain.JobPostingId
-import org.ferran.jobscan.scanner.domain.JobPostingRepository
-import org.ferran.jobscan.scanner.domain.PostingStatus
+import org.ferran.jobscan.scanner.domain.jobposting.InvalidStatusTransitionError
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingRepository
+import org.ferran.jobscan.scanner.domain.jobposting.PostingStatus
 import org.springframework.stereotype.Service
 
 data class UpdateJobPostingCommand (

@@ -3,11 +3,11 @@ package org.ferran.jobscan.scanner.infrastructure.persistence
 import jakarta.persistence.EntityManager
 import net.datafaker.Faker
 import org.ferran.jobscan.PostgresTestConfiguration
-import org.ferran.jobscan.scanner.domain.JobPostingFilter
-import org.ferran.jobscan.scanner.domain.JobPostingId
-import org.ferran.jobscan.scanner.domain.JobPostingMother
-import org.ferran.jobscan.scanner.domain.PostingStatus
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingFilter
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingMother
+import org.ferran.jobscan.scanner.domain.jobposting.PostingStatus
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.hibernate.exception.ConstraintViolationException
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

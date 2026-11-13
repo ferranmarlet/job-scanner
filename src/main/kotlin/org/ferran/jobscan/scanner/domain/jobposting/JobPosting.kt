@@ -1,4 +1,4 @@
-package org.ferran.jobscan.scanner.domain
+package org.ferran.jobscan.scanner.domain.jobposting
 
 import java.net.URI
 import java.time.Instant
@@ -48,7 +48,8 @@ data class JobPosting(
         if (wanted.isEmpty()) 0.0
         else skills.count { it.lowercase() in wanted.map(String::lowercase) }.toDouble() / wanted.size
 
-    fun markApplied(): JobPosting = changeStatus(PostingStatus.APPLIED)
+    fun markApplied(): JobPosting =
+        changeStatus(PostingStatus.APPLIED)
 
     fun changeStatus(newStatus: PostingStatus): JobPosting {
         if (!canTransitionTo(newStatus)) throw InvalidStatusTransitionError(status, newStatus)

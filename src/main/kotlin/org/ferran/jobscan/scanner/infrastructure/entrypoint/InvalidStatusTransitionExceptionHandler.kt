@@ -1,6 +1,6 @@
 package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
-import org.ferran.jobscan.scanner.domain.InvalidStatusTransitionError
+import org.ferran.jobscan.scanner.domain.jobposting.InvalidStatusTransitionError
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.ExceptionHandler

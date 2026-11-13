@@ -1,4 +1,4 @@
-package org.ferran.jobscan.scanner.domain
+package org.ferran.jobscan.scanner.domain.jobposting
 
 data class PagedJobPostingRequest (
     val filter: JobPostingFilter,

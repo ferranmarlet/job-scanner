@@ -1,10 +1,10 @@
 package org.ferran.jobscan.scanner.infrastructure.persistence
 
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.JobPostingFilter
-import org.ferran.jobscan.scanner.domain.JobPostingId
-import org.ferran.jobscan.scanner.domain.JobPostingRepository
-import org.ferran.jobscan.scanner.domain.PagedResponse
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingFilter
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingRepository
+import org.ferran.jobscan.scanner.domain.shared.PagedResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification

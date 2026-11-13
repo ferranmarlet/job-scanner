@@ -1,9 +1,9 @@
 package org.ferran.jobscan.scanner.application
 
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.JobPostingRepository
-import org.ferran.jobscan.scanner.domain.PagedJobPostingRequest
-import org.ferran.jobscan.scanner.domain.PagedResponse
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingRepository
+import org.ferran.jobscan.scanner.domain.jobposting.PagedJobPostingRequest
+import org.ferran.jobscan.scanner.domain.shared.PagedResponse
 import org.springframework.stereotype.Service
 
 @Service

@@ -1,4 +1,4 @@
-package org.ferran.jobscan.scanner.domain
+package org.ferran.jobscan.scanner.domain.shared
 
 data class PagedResponse<T> (
     val elements: List<T>,

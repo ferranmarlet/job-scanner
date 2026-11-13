@@ -1,9 +1,9 @@
 package org.ferran.jobscan.scanner.infrastructure.jobsource.findwork
 
-import org.ferran.jobscan.scanner.domain.ExternalJobSourceRepository
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.JobSearchCriteria
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.ExternalJobSourceRepository
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.JobSearchCriteria
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.ferran.jobscan.scanner.infrastructure.ScannerProperties
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component

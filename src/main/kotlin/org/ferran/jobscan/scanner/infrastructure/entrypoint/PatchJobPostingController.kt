@@ -2,8 +2,8 @@ package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
 import org.ferran.jobscan.scanner.application.UpdateJobPostingCommand
 import org.ferran.jobscan.scanner.application.UpdateJobPostingCommandHandler
-import org.ferran.jobscan.scanner.domain.JobPostingId
-import org.ferran.jobscan.scanner.domain.PostingStatus
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
+import org.ferran.jobscan.scanner.domain.jobposting.PostingStatus
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody

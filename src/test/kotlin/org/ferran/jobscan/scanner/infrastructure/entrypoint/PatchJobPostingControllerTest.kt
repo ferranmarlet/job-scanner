@@ -3,8 +3,8 @@ package org.ferran.jobscan.scanner.infrastructure.entrypoint
 import org.ferran.jobscan.scanner.application.UpdateJobPostingCommand
 import org.ferran.jobscan.scanner.application.UpdateJobPostingCommandHandler
 import org.ferran.jobscan.scanner.application.error.JobPostingNotFoundError
-import org.ferran.jobscan.scanner.domain.JobPostingId
-import org.ferran.jobscan.scanner.domain.PostingStatus
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
+import org.ferran.jobscan.scanner.domain.jobposting.PostingStatus
 import org.ferran.jobscan.security.SecurityConfig
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given

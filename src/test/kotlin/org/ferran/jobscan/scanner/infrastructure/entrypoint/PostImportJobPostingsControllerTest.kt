@@ -3,8 +3,8 @@ package org.ferran.jobscan.scanner.infrastructure.entrypoint
 import net.datafaker.Faker
 import org.ferran.jobscan.scanner.application.ImportJobPostingsCommand
 import org.ferran.jobscan.scanner.application.ImportJobPostingsCommandHandler
-import org.ferran.jobscan.scanner.domain.JobSearchCriteria
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.JobSearchCriteria
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.ferran.jobscan.security.SecurityConfig
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.verify

@@ -2,8 +2,8 @@ package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
 import org.ferran.jobscan.scanner.application.ImportJobPostingsCommand
 import org.ferran.jobscan.scanner.application.ImportJobPostingsCommandHandler
-import org.ferran.jobscan.scanner.domain.JobSearchCriteria
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.JobSearchCriteria
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping

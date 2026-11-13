@@ -2,12 +2,12 @@ package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
 import org.ferran.jobscan.scanner.application.GetJobPostingUseCase
 import org.ferran.jobscan.scanner.application.error.JobPostingNotFoundError
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.JobPostingId
-import org.ferran.jobscan.scanner.domain.PostingStatus
-import org.ferran.jobscan.scanner.domain.SalaryRange
-import org.ferran.jobscan.scanner.domain.Seniority
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
+import org.ferran.jobscan.scanner.domain.jobposting.PostingStatus
+import org.ferran.jobscan.scanner.domain.jobposting.SalaryRange
+import org.ferran.jobscan.scanner.domain.jobposting.Seniority
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.ferran.jobscan.security.SecurityConfig
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given

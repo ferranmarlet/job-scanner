@@ -1,8 +1,8 @@
 package org.ferran.jobscan.scanner.infrastructure.persistence
 
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.JobPostingId
-import org.ferran.jobscan.scanner.domain.SalaryRange
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
+import org.ferran.jobscan.scanner.domain.jobposting.SalaryRange
 import java.net.URI
 
 object JobPostingEntityMapper {

@@ -1,5 +1,6 @@
-package org.ferran.jobscan.scanner.domain
+package org.ferran.jobscan.scanner.domain.jobposting
 
+import org.ferran.jobscan.scanner.domain.shared.PagedResponse
 import java.net.URI
 
 data class JobPostingFilter(

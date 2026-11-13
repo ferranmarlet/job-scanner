@@ -1,10 +1,10 @@
 package org.ferran.jobscan.scanner.infrastructure.persistence
 
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.PostingStatus
-import org.ferran.jobscan.scanner.domain.SalaryRange
-import org.ferran.jobscan.scanner.domain.Seniority
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.PostingStatus
+import org.ferran.jobscan.scanner.domain.jobposting.SalaryRange
+import org.ferran.jobscan.scanner.domain.jobposting.Seniority
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.net.URI

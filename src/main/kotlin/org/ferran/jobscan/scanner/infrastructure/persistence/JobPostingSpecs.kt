@@ -1,7 +1,7 @@
 package org.ferran.jobscan.scanner.infrastructure.persistence
 
-import org.ferran.jobscan.scanner.domain.PostingStatus
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.PostingStatus
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.springframework.data.jpa.domain.Specification
 
 object JobPostingSpecs {

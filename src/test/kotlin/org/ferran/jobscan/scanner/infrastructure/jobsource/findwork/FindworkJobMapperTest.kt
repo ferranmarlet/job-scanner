@@ -2,8 +2,8 @@ package org.ferran.jobscan.scanner.infrastructure.jobsource.findwork
 
 import net.datafaker.Faker
 import org.assertj.core.api.Assertions.assertThat
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.net.URI

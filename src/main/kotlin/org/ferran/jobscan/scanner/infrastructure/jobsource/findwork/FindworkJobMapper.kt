@@ -1,7 +1,7 @@
 package org.ferran.jobscan.scanner.infrastructure.jobsource.findwork
 
-import org.ferran.jobscan.scanner.domain.JobPosting
-import org.ferran.jobscan.scanner.domain.WorkMode
+import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
+import org.ferran.jobscan.scanner.domain.jobposting.WorkMode
 import java.net.URI
 
 object FindworkJobMapper {

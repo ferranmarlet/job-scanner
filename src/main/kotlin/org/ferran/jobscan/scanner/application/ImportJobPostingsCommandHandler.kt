@@ -1,8 +1,8 @@
 package org.ferran.jobscan.scanner.application
 
-import org.ferran.jobscan.scanner.domain.ExternalJobSourceRepository
-import org.ferran.jobscan.scanner.domain.JobPostingRepository
-import org.ferran.jobscan.scanner.domain.JobSearchCriteria
+import org.ferran.jobscan.scanner.domain.jobposting.ExternalJobSourceRepository
+import org.ferran.jobscan.scanner.domain.jobposting.JobPostingRepository
+import org.ferran.jobscan.scanner.domain.jobposting.JobSearchCriteria
 import org.springframework.stereotype.Service
 
 data class ImportJobPostingsCommand (

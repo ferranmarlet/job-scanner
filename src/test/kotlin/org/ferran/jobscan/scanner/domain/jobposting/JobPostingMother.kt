@@ -1,4 +1,4 @@
-package org.ferran.jobscan.scanner.domain
+package org.ferran.jobscan.scanner.domain.jobposting
 
 import net.datafaker.Faker
 import java.net.URI
