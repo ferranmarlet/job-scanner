@@ -1,7 +1,7 @@
 package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
-import org.ferran.jobscan.scanner.application.GetJobPostingUseCase
-import org.ferran.jobscan.scanner.application.error.JobPostingNotFoundError
+import org.ferran.jobscan.scanner.application.jobposting.GetJobPostingUseCase
+import org.ferran.jobscan.scanner.application.jobposting.JobPostingNotFoundError
 import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
 import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
 import org.ferran.jobscan.scanner.domain.jobposting.PostingStatus

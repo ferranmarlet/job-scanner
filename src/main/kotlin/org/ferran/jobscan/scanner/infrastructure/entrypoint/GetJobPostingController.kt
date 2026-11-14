@@ -2,7 +2,7 @@ package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
 import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
 import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
-import org.ferran.jobscan.scanner.application.GetJobPostingUseCase
+import org.ferran.jobscan.scanner.application.jobposting.GetJobPostingUseCase
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping

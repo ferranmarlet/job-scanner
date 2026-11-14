@@ -1,6 +1,6 @@
 package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
-import org.ferran.jobscan.scanner.application.error.JobPostingNotFoundError
+import org.ferran.jobscan.scanner.application.jobposting.JobPostingNotFoundError
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.web.bind.annotation.ExceptionHandler

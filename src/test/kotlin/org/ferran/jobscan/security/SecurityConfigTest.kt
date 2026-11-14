@@ -1,7 +1,7 @@
 package org.ferran.jobscan.security
 
-import org.ferran.jobscan.scanner.application.GetJobPostingUseCase
-import org.ferran.jobscan.scanner.application.ImportJobPostingsCommandHandler
+import org.ferran.jobscan.scanner.application.jobposting.GetJobPostingUseCase
+import org.ferran.jobscan.scanner.application.jobposting.ImportJobPostingsCommandHandler
 import org.ferran.jobscan.scanner.domain.jobposting.JobPostingMother
 import org.ferran.jobscan.scanner.infrastructure.entrypoint.GetJobPostingController
 import org.ferran.jobscan.scanner.infrastructure.entrypoint.PostImportJobPostingsController

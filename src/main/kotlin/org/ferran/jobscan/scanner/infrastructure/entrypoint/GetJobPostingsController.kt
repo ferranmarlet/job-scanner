@@ -1,7 +1,7 @@
 package org.ferran.jobscan.scanner.infrastructure.entrypoint
 
 import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
-import org.ferran.jobscan.scanner.application.GetJobPostingsUseCase
+import org.ferran.jobscan.scanner.application.jobposting.GetJobPostingsUseCase
 import org.ferran.jobscan.scanner.domain.jobposting.JobPostingFilter
 import org.ferran.jobscan.scanner.domain.jobposting.PagedJobPostingRequest
 import org.ferran.jobscan.scanner.domain.shared.PagedResponse

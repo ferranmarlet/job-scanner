@@ -1,6 +1,5 @@
-package org.ferran.jobscan.scanner.application
+package org.ferran.jobscan.scanner.application.jobposting
 
-import org.ferran.jobscan.scanner.application.error.JobPostingNotFoundError
 import org.ferran.jobscan.scanner.domain.jobposting.JobPosting
 import org.ferran.jobscan.scanner.domain.jobposting.JobPostingId
 import org.ferran.jobscan.scanner.domain.jobposting.JobPostingRepository
