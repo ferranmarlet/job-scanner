@@ -390,6 +390,84 @@ resource "aws_ecr_lifecycle_policy" "app" {
   })
 }
 
+# --- S3 bucket for resumes ---
+resource "aws_s3_bucket" "resumes" {
+  bucket = "${var.project_name}-resumes-${var.environment}"
+}
+
+resource "aws_s3_bucket_public_access_block" "resumes" {
+  bucket = aws_s3_bucket.resumes.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Disables ACLs: the bucket owner owns every object
+resource "aws_s3_bucket_ownership_controls" "resumes" {
+  bucket = aws_s3_bucket.resumes.id
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "resumes" {
+  bucket = aws_s3_bucket.resumes.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# Rejects any request that doesn't use TLS
+resource "aws_s3_bucket_policy" "resumes" {
+  bucket = aws_s3_bucket.resumes.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid       = "DenyInsecureTransport"
+      Effect    = "Deny"
+      Principal = "*"
+      Action    = "s3:*"
+      Resource = [
+        aws_s3_bucket.resumes.arn,
+        "${aws_s3_bucket.resumes.arn}/*",
+      ]
+      Condition = { Bool = { "aws:SecureTransport" = "false" } }
+    }]
+  })
+
+  depends_on = [aws_s3_bucket_public_access_block.resumes]
+}
+
+# Lets the app upload, read and delete resumes
+resource "aws_iam_role_policy" "app_task_resumes" {
+  name = "resumes-bucket-access"
+  role = aws_iam_role.app_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
+        Resource = "${aws_s3_bucket.resumes.arn}/*"
+      },
+      {
+        # Without it, reading a missing key returns 403 instead of 404
+        Effect   = "Allow"
+        Action   = "s3:ListBucket"
+        Resource = aws_s3_bucket.resumes.arn
+      },
+    ]
+  })
+}
+
 # --- CloudWatch Log Group ---
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/ecs/${var.project_name}-${var.environment}"
@@ -424,6 +502,7 @@ resource "aws_ecs_task_definition" "app" {
       { name = "SPRING_DATASOURCE_DRIVERCLASSNAME", value = "software.amazon.jdbc.Driver" },
       { name = "COGNITO_ISSUER_URI", value = var.cognito_issuer_uri },
       { name = "COGNITO_SPA_CLIENT_ID", value = var.cognito_spa_client_id },
+      { name = "RESUMES_BUCKET_NAME", value = aws_s3_bucket.resumes.bucket },
     ]
     secrets = [{
       name      = "FINDWORK_API_KEY"

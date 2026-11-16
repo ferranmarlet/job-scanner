@@ -23,6 +23,7 @@ flowchart LR
         cognito["Cognito user pool"]
         ecr["ECR"]
         secret["Secrets Manager"]
+        resumes[("S3 resumes bucket")]
         logs["CloudWatch Logs"]
 
         subgraph vpc["VPC 10.0.0.0/16"]
@@ -45,6 +46,7 @@ flowchart LR
     ec2 -->|"validates JWT via JWKS"| cognito
     ecr -->|"image"| ec2
     secret -->|"API key"| ec2
+    ec2 -->|"upload resumes"| resumes
     ec2 --> logs
     operator -->|"SSM port-forward"| ec2
 ```
@@ -69,6 +71,7 @@ flowchart LR
 | **DB access** | The app connects as `jobscan_app` with an IAM token (`jdbc:aws-wrapper:postgresql` with the `iam` plugin, `sslmode=require`). The user is created by hand once (see `README.md`). |
 | **Secrets** | The Findwork API key lives in a Secrets Manager secret created outside Terraform (`findwork_api_key_secret_arn`) and is injected into the container as `FINDWORK_API_KEY`. |
 | **Logs** | CloudWatch log group `/ecs/jobscan-dev`, 7-day retention. |
+| **Resumes bucket** | S3 `jobscan-resumes-dev`, where the API uploads resumes. Private (all public access blocked, ACLs disabled), SSE-S3 encryption, and a bucket policy that denies non-TLS requests. Its name is passed to the container as `RESUMES_BUCKET_NAME`. |
 
 ### Security groups
 
@@ -86,7 +89,7 @@ The instance carries both `ecs_sg` and `app-sg`, which is how it reaches RDS.
 |---|---|---|
 | `ecs-instance-role` | EC2 host | ECS agent policy, `AmazonSSMManagedInstanceCore` (for SSM sessions) |
 | `task-execution-role` | ECS agent | Pull from ECR, write logs, `secretsmanager:GetSecretValue` on the Findwork secret |
-| `app-task` | The running container | `rds-db:connect` as `jobscan_app` only |
+| `app-task` | The running container | `rds-db:connect` as `jobscan_app` only; `s3:PutObject`, `GetObject`, `DeleteObject` on the resumes bucket objects and `s3:ListBucket` on the bucket |
 
 ## Backoffice stack (`../jobscan-backoffice/terraform/`)
 

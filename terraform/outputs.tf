@@ -36,3 +36,8 @@ output "asg_name" {
   description = "Auto Scaling group name, used to find the instance for SSM port forwarding"
   value       = aws_autoscaling_group.ecs_asg.name
 }
+
+output "resumes_bucket_name" {
+  description = "S3 bucket the API uploads resumes to"
+  value       = aws_s3_bucket.resumes.bucket
+}
