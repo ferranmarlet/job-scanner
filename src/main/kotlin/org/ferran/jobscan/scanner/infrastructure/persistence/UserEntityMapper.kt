@@ -9,6 +9,8 @@ object UserEntityMapper {
         UserEntity(
             user.id.value,
             user.externalId,
+            user.autoAnalysisEnabled,
+            user.resume?.let(ResumeEntityMapper::toEntity),
             user.createdAt,
         )
 
@@ -16,6 +18,8 @@ object UserEntityMapper {
         User(
             id = UserId(entity.id),
             externalId = entity.externalId,
+            autoAnalysisEnabled = entity.autoAnalysisEnabled,
+            resume = entity.resume?.let(ResumeEntityMapper::toDomain),
             createdAt = entity.createdAt,
         )
 }

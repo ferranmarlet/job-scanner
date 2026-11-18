@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ADD COLUMN auto_analysis_enabled BOOLEAN NOT NULL DEFAULT FALSE;

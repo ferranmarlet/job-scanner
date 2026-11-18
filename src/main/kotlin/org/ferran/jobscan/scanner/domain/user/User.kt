@@ -1,5 +1,6 @@
 package org.ferran.jobscan.scanner.domain.user
 
+import org.ferran.jobscan.scanner.domain.resume.Resume
 import java.time.Instant
 import java.util.UUID
 
@@ -14,5 +15,7 @@ value class UserId(val value: UUID) {
 data class User(
     val id: UserId = UserId.new(),
     val externalId: String,
+    val autoAnalysisEnabled: Boolean,
+    val resume: Resume? = null,
     val createdAt: Instant = Instant.now(),
 )
