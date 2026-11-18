@@ -15,6 +15,7 @@ value class UserId(val value: UUID) {
 data class User(
     val id: UserId = UserId.new(),
     val externalId: String,
+    val email: String,
     val autoAnalysisEnabled: Boolean,
     val resume: Resume? = null,
     val createdAt: Instant = Instant.now(),

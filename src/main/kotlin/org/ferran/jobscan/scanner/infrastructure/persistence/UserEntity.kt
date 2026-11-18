@@ -21,6 +21,9 @@ class UserEntity(
     var externalId: String,
 
     @Column(nullable = false)
+    var email: String,
+
+    @Column(nullable = false)
     var autoAnalysisEnabled: Boolean,
 
     @OneToOne
