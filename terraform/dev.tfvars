@@ -9,3 +9,4 @@ findwork_api_key_secret_arn = "arn:aws:secretsmanager:eu-west-1:149218332673:sec
 
 cognito_issuer_uri    = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_Ux4AOlLZv"
 cognito_spa_client_id = "71ep19rin2p202o9d546vvul8c"
+cognito_login_domain  = "jobscan-backoffice-dev.auth.eu-west-1.amazoncognito.com"

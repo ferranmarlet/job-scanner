@@ -61,3 +61,8 @@ variable "cognito_spa_client_id" {
   description = "Cognito app client the access tokens must be issued to (backoffice output cognito_spa_client_id)"
   type        = string
 }
+
+variable "cognito_login_domain" {
+  description = "Cognito hosted login domain, whose /oauth2/userInfo endpoint returns the caller's email (backoffice output cognito_login_domain)"
+  type        = string
+}

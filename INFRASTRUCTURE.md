@@ -119,7 +119,9 @@ The instance carries both `ecs_sg` and `app-sg`, which is how it reaches RDS.
 - the token must have the pool as issuer (`COGNITO_ISSUER_URI`), `token_use = access`, and `client_id = COGNITO_SPA_CLIENT_ID`, because Cognito access tokens have no `aud` claim;
 - `cognito:groups` become roles; `POST /import-job-postings` also needs the `admin` group, otherwise `403`.
 
-The API stack passes both values to the task from `cognito_issuer_uri` and `cognito_spa_client_id` in `dev.tfvars`. Copy them from the backoffice outputs: they can't be read from its state, because that stack already reads the API's state. The remaining work is to wire the SPA to the hosted login and send the access token.
+On the first request from a user, the API creates its `users` row, keyed by the token's `sub`, with the email returned by the hosted domain's `/oauth2/userInfo` endpoint.
+
+The API stack passes these values to the task from `cognito_issuer_uri`, `cognito_spa_client_id` and `cognito_login_domain` in `dev.tfvars`. Copy them from the backoffice outputs: they can't be read from its state, because that stack already reads the API's state. The remaining work is to wire the SPA to the hosted login and send the access token.
 
 Create users with `aws cognito-idp admin-create-user` (or the console) and add them to the `admin` group.
 

@@ -502,6 +502,7 @@ resource "aws_ecs_task_definition" "app" {
       { name = "SPRING_DATASOURCE_DRIVERCLASSNAME", value = "software.amazon.jdbc.Driver" },
       { name = "COGNITO_ISSUER_URI", value = var.cognito_issuer_uri },
       { name = "COGNITO_SPA_CLIENT_ID", value = var.cognito_spa_client_id },
+      { name = "COGNITO_LOGIN_DOMAIN", value = var.cognito_login_domain },
       { name = "RESUMES_BUCKET_NAME", value = aws_s3_bucket.resumes.bucket },
     ]
     secrets = [{
